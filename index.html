@@ -1,0 +1,2731 @@
+<!DOCTYPE html>
+<html lang="pt-AO" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KwanzaRH Pro — Gestão de Capital Humano (Angola)</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            obsidian: '#0B0F17',
+            slateDark: '#131A26',
+            slateCard: '#182132',
+            slateBorder: '#273449',
+            gold: {
+              400: '#FBBF24',
+              500: '#D4AF37',
+              600: '#B49022',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      background-color: #0B0F17;
+      color: #F1F5F9;
+      font-family: 'Inter', sans-serif;
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0B0F17;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #273449;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #D4AF37;
+    }
+
+    /* Print Styles para Recibos, Contratos e Certificados */
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      #print-area, #print-area * {
+        visibility: visible;
+      }
+      #print-area {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        background: #ffffff !important;
+        color: #000000 !important;
+        padding: 20px;
+        margin: 0;
+        box-shadow: none !important;
+      }
+      .no-print {
+        display: none !important;
+      }
+    }
+
+    .gold-gradient {
+      background: linear-gradient(135deg, #D4AF37 0%, #F59E0B 100%);
+    }
+
+    .card-surface {
+      background-color: #131A26;
+      border: 1px solid #273449;
+    }
+
+    .input-dark {
+      background-color: #0B0F17;
+      border: 1px solid #273449;
+      color: #F8FAFC;
+      transition: all 0.2s;
+    }
+    .input-dark:focus {
+      outline: none;
+      border-color: #D4AF37;
+      box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.15);
+    }
+  </style>
+</head>
+<body class="antialiased selection:bg-amber-500/30 selection:text-amber-200">
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+  <!-- Layout Principal -->
+  <div class="flex min-h-screen overflow-x-hidden">
+    
+    <!-- Mobile Sidebar Overlay -->
+    <div id="sidebar-overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-black/70 z-30 hidden lg:hidden backdrop-blur-sm"></div>
+
+    <!-- Barra Lateral Esquerda -->
+    <aside id="sidebar" class="fixed lg:static inset-y-0 left-0 z-40 w-72 bg-[#0E1420] border-r border-slateBorder transform -translate-x-full lg:translate-x-0 transition-transform duration-300 flex flex-col justify-between">
+      <div>
+        <!-- Brand Header -->
+        <div class="p-6 border-b border-slateBorder">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl gold-gradient flex items-center justify-center text-obsidian font-extrabold text-xl shadow-lg shadow-amber-500/20">
+              Kz
+            </div>
+            <div>
+              <h1 class="font-bold text-lg tracking-tight text-white leading-tight">KwanzaRH <span class="text-gold-500">Pro</span></h1>
+              <p class="text-[11px] text-slate-400 font-medium">Capital Humano • Angola</p>
+            </div>
+          </div>
+          <div class="mt-3 px-2.5 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/25 flex items-center justify-between">
+            <span class="text-[10px] font-semibold tracking-wider text-amber-400 uppercase">LGT 12/23 • IRT 2026 • INSS</span>
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" title="Conformidade Legal Ativa"></span>
+          </div>
+        </div>
+
+        <!-- Navegação Principal -->
+        <nav class="p-4 space-y-1.5" id="main-nav">
+          <button onclick="navigate('dashboard')" data-route="dashboard" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all">
+            <i class="fa-solid fa-chart-pie w-5 text-center"></i>
+            <span>Dashboard Executivo</span>
+          </button>
+          <button onclick="navigate('employees')" data-route="employees" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all">
+            <i class="fa-solid fa-users w-5 text-center"></i>
+            <span>Cadastro & Admissão</span>
+          </button>
+          <button onclick="navigate('attendance')" data-route="attendance" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all">
+            <i class="fa-solid fa-clock w-5 text-center"></i>
+            <span>Assiduidade & Extras</span>
+          </button>
+          <button onclick="navigate('payroll')" data-route="payroll" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all">
+            <i class="fa-solid fa-file-invoice-dollar w-5 text-center"></i>
+            <span>Folha Salarial (IRT/INSS)</span>
+          </button>
+          <button onclick="navigate('vacations')" data-route="vacations" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all">
+            <i class="fa-solid fa-umbrella-beach w-5 text-center"></i>
+            <span>Férias & Subsídios</span>
+          </button>
+          <button onclick="navigate('termination')" data-route="termination" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all">
+            <i class="fa-solid fa-file-signature w-5 text-center"></i>
+            <span>Rescisão & Contas Finais</span>
+          </button>
+          <div class="pt-3 mt-3 border-t border-slateBorder/70">
+            <button onclick="navigate('settings')" data-route="settings" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all">
+              <i class="fa-solid fa-scale-balanced w-5 text-center"></i>
+              <span>Parâmetros OGE / LGT</span>
+            </button>
+          </div>
+        </nav>
+      </div>
+
+      <!-- Footer da Sidebar -->
+      <div class="p-4 border-t border-slateBorder bg-[#0B0F17]/60">
+        <div class="text-xs text-slate-400 space-y-1">
+          <div class="flex justify-between">
+            <span>Moeda Base:</span>
+            <span class="font-mono text-amber-400 font-semibold">AOA (Kz)</span>
+          </div>
+          <div class="flex justify-between">
+            <span>Salário Mínimo Ref.:</span>
+            <span class="font-mono text-slate-300" id="sidebar-min-wage">70.000,00 Kz</span>
+          </div>
+          <div class="flex justify-between">
+            <span>Submissão INSS:</span>
+            <span class="text-slate-300">Até dia 10</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Conteúdo Principal -->
+    <div class="flex-1 flex flex-col min-w-0">
+      
+      <!-- Cabeçalho Superior -->
+      <header class="sticky top-0 z-20 bg-[#0B0F17]/90 backdrop-blur-md border-b border-slateBorder px-4 sm:px-8 py-3.5 flex flex-wrap items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <button onclick="toggleSidebar()" class="lg:hidden p-2 rounded-lg bg-slateCard border border-slateBorder text-slate-300 hover:text-white">
+            <i class="fa-solid fa-bars"></i>
+          </button>
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-semibold uppercase tracking-wider text-gold-500" id="header-company-name">Sim7 Angola Tecnologia, Lda</span>
+              <span class="hidden sm:inline-block text-xs px-2 py-0.5 rounded bg-slateCard border border-slateBorder font-mono text-slate-300" id="header-company-nif">NIF: 5417298310</span>
+            </div>
+            <p class="text-xs text-slate-400 flex items-center gap-1.5 mt-0.5">
+              <i class="fa-solid fa-location-dot text-amber-500/80"></i>
+              <span id="header-company-address">Luanda, Distrito Urbano da Ingombota • Centro de Trabalho Sede</span>
+            </p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2.5">
+          <div class="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slateDark border border-slateBorder text-xs">
+            <span class="text-slate-400">Competência:</span>
+            <select id="global-period" onchange="changePeriod(this.value)" class="bg-transparent font-semibold text-amber-400 focus:outline-none cursor-pointer">
+              <option value="2026-11" class="bg-slateDark">Novembro / 2026</option>
+              <option value="2026-12" class="bg-slateDark">Dezembro / 2026 (c/ Sub. Natal)</option>
+              <option value="2026-10" class="bg-slateDark">Outubro / 2026</option>
+            </select>
+          </div>
+
+          <button onclick="openCompanyModal()" class="p-2 sm:px-3 sm:py-1.5 rounded-xl bg-slateCard hover:bg-slate-800 border border-slateBorder text-xs font-medium text-slate-200 flex items-center gap-1.5 transition" title="Configurar Dados da Empresa">
+            <i class="fa-solid fa-building text-gold-500"></i>
+            <span class="hidden sm:inline">Empresa</span>
+          </button>
+
+          <button onclick="confirmResetDemo()" class="p-2 sm:px-3 sm:py-1.5 rounded-xl bg-rose-950/40 hover:bg-rose-900/50 border border-rose-800/50 text-xs font-medium text-rose-300 flex items-center gap-1.5 transition" title="Restaurar Dados Iniciais de Demonstração">
+            <i class="fa-solid fa-rotate-left"></i>
+            <span class="hidden sm:inline">Reset Demo</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- Área Dinâmica das Views -->
+      <main id="app-content" class="flex-1 p-4 sm:p-8 max-w-7xl w-full mx-auto space-y-6">
+        <!-- Renderizado via JS -->
+      </main>
+
+    </div>
+  </div>
+
+  <!-- MODAL GENÉRICO (Detalhes, Recibos, Contratos, Empresa) -->
+  <div id="modal-backdrop" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4 overflow-y-auto">
+    <div id="modal-box" class="bg-[#131A26] border border-slateBorder rounded-2xl w-full max-w-4xl max-h-[90vh] flex flex-col shadow-2xl">
+      <div class="px-6 py-4 border-b border-slateBorder flex items-center justify-between">
+        <h3 id="modal-title" class="font-bold text-lg text-white">Título do Modal</h3>
+        <div class="flex items-center gap-2">
+          <button id="modal-print-btn" onclick="window.print()" class="hidden px-3 py-1.5 rounded-lg gold-gradient text-obsidian font-semibold text-xs flex items-center gap-1.5 hover:opacity-90">
+            <i class="fa-solid fa-print"></i> Imprimir / Salvar PDF
+          </button>
+          <button onclick="closeModal()" class="w-8 h-8 rounded-lg bg-slateCard hover:bg-slate-700 text-slate-300 flex items-center justify-center">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+      </div>
+      <div id="modal-body" class="p-6 overflow-y-auto flex-1">
+        <!-- Conteúdo dinâmico -->
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // =========================================================================
+    // 1. DADOS PADRÃO & PARÂMETROS LEGAIS DE ANGOLA (LGT 12/23 & OGE 2026)
+    // =========================================================================
+    const STORAGE_KEY = 'kwanzarh_pro_angola_v1';
+
+    const DEFAULT_PARAMS = {
+      irtTable2026: [
+        { escalao: 1, min: 0, max: 150000, fixa: 0, taxa: 0.00, excesso: 0 },
+        { escalao: 2, min: 150001, max: 200000, fixa: 12500, taxa: 0.16, excesso: 150000 },
+        { escalao: 3, min: 200001, max: 300000, fixa: 31250, taxa: 0.18, excesso: 200000 },
+        { escalao: 4, min: 300001, max: 500000, fixa: 49250, taxa: 0.19, excesso: 300000 },
+        { escalao: 5, min: 500001, max: 1000000, fixa: 87250, taxa: 0.20, excesso: 500000 },
+        { escalao: 6, min: 1000001, max: 1500000, fixa: 187250, taxa: 0.21, excesso: 1000000 },
+        { escalao: 7, min: 1500001, max: 2000000, fixa: 292250, taxa: 0.22, excesso: 1500000 },
+        { escalao: 8, min: 2000001, max: 2500000, fixa: 402250, taxa: 0.23, excesso: 2000000 },
+        { escalao: 9, min: 2500001, max: 5000000, fixa: 517250, taxa: 0.24, excesso: 2500000 },
+        { escalao: 10, min: 5000001, max: 10000000, fixa: 1117250, taxa: 0.245, excesso: 5000000 },
+        { escalao: 11, min: 10000001, max: Infinity, fixa: 2342250, taxa: 0.25, excesso: 10000000 }
+      ],
+      inssWorkerRate: 0.03,      // 3% Trabalhador
+      inssEmployerRate: 0.08,    // 8% Entidade Empregadora
+      foodExemptCap: 30000,      // Isenção Subsídio Alimentação até 30.000 Kz
+      transportExemptCap: 30000, // Isenção Subsídio Transporte até 30.000 Kz
+      familyAllowancePct: 0.05,  // Abono de família isento até 5% do salário base
+      vacationBonusPct: 0.50,    // Mínimo legal 50% (Art. 238.º LGT)
+      christmasBonusPct: 0.50,   // Mínimo legal 50% (Art. 238.º LGT)
+      weeklyHoursDefault: 44,    // 44h semanais (Art. 148.º LGT)
+      minWageRef: 70000          // Salário Mínimo Nacional Referência (Kz)
+    };
+
+    const INITIAL_STATE = {
+      company: {
+        name: 'Sim7 Angola Tecnologia, Lda',
+        nif: '5417298310',
+        inssEntity: '001928374',
+        address: 'Rua Comandante Gika, Edifício Garden Towers, Ingombota, Luanda',
+        sector: 'Tecnologia de Informação e Consultoria',
+        representative: 'Dr. António Manuel dos Santos'
+      },
+      period: '2026-11',
+      params: JSON.parse(JSON.stringify(DEFAULT_PARAMS)),
+      employees: [
+        {
+          id: 'EMP-001',
+          name: 'Mateus Sebastião Kiaku',
+          bi: '003849201LA045',
+          nif: '0038492014',
+          inss: '2094817263',
+          birthDate: '1984-05-14',
+          maritalStatus: 'Casado(a)',
+          nationality: 'Nacional',
+          bank: 'BAI',
+          iban: 'AO06004000008472910410192',
+          role: 'Director de Operações',
+          maptssCode: '1120.02 - Director Operacional',
+          department: 'Direcção & Gestão',
+          contractType: 'Tempo Indeterminado',
+          admissionDate: '2021-03-01',
+          contractEndDate: '',
+          probationDays: 180,
+          weeklyHours: 44,
+          status: 'Ativo',
+          baseSalary: 1450000,
+          foodAllowance: 45000,
+          transportAllowance: 45000,
+          familyAllowance: 50000,
+          leadershipAllowance: 200000,
+          vacationDaysTaken: 10
+        },
+        {
+          id: 'EMP-002',
+          name: 'Catarina de Fátima Van-Dúnem',
+          bi: '005192837LA041',
+          nif: '0051928371',
+          inss: '2183746590',
+          birthDate: '1991-09-22',
+          maritalStatus: 'Solteiro(a)',
+          nationality: 'Nacional',
+          bank: 'BFA',
+          iban: 'AO06000600003918274610134',
+          role: 'Engenheira de Software Sénior',
+          maptssCode: '2512.01 - Analista Programador',
+          department: 'Engenharia & TI',
+          contractType: 'Teletrabalho',
+          admissionDate: '2023-07-15',
+          contractEndDate: '',
+          probationDays: 120,
+          weeklyHours: 44,
+          status: 'Ativo',
+          baseSalary: 880000,
+          foodAllowance: 30000,
+          transportAllowance: 30000,
+          familyAllowance: 0,
+          leadershipAllowance: 0,
+          vacationDaysTaken: 0
+        },
+        {
+          id: 'EMP-003',
+          name: 'João Baptista Tchivinda',
+          bi: '004928173HU039',
+          nif: '0049281738',
+          inss: '2054829103',
+          birthDate: '1988-11-03',
+          maritalStatus: 'Casado(a)',
+          nationality: 'Nacional',
+          bank: 'BIC',
+          iban: 'AO06005100007281930410188',
+          role: 'Contabilista Certificado',
+          maptssCode: '2411.01 - Contabilista',
+          department: 'Finanças & Contabilidade',
+          contractType: 'Tempo Indeterminado',
+          admissionDate: '2022-01-10',
+          contractEndDate: '',
+          probationDays: 120,
+          weeklyHours: 44,
+          status: 'Ativo',
+          baseSalary: 650000,
+          foodAllowance: 30000,
+          transportAllowance: 30000,
+          familyAllowance: 32500,
+          leadershipAllowance: 50000,
+          vacationDaysTaken: 15
+        },
+        {
+          id: 'EMP-004',
+          name: 'Esperança Rosa Nzinga',
+          bi: '006738291LA048',
+          nif: '0067382912',
+          inss: '2293847561',
+          birthDate: '1995-02-18',
+          maritalStatus: 'Solteiro(a)',
+          nationality: 'Nacional',
+          bank: 'Standard Bank',
+          iban: 'AO06006000001928374610155',
+          role: 'Técnica de Recursos Humanos',
+          maptssCode: '2423.03 - Especialista de RH',
+          department: 'Recursos Humanos',
+          contractType: 'Tempo Indeterminado',
+          admissionDate: '2026-10-01',
+          contractEndDate: '',
+          probationDays: 60,
+          weeklyHours: 44,
+          status: 'Período Experimental',
+          baseSalary: 420000,
+          foodAllowance: 30000,
+          transportAllowance: 30000,
+          familyAllowance: 0,
+          leadershipAllowance: 0,
+          vacationDaysTaken: 0
+        },
+        {
+          id: 'EMP-005',
+          name: 'Domingos Manuel Kiala',
+          bi: '002938475BE032',
+          nif: '0029384759',
+          inss: '1983746512',
+          birthDate: '1986-08-30',
+          maritalStatus: 'Casado(a)',
+          nationality: 'Nacional',
+          bank: 'Atlântico',
+          iban: 'AO06005500006372819410171',
+          role: 'Motorista / Estafeta Executivo',
+          maptssCode: '8322.01 - Motorista de Ligeiros',
+          department: 'Logística & Apoio',
+          contractType: 'Tempo Determinado',
+          admissionDate: '2026-01-05',
+          contractEndDate: '2026-12-31',
+          probationDays: 30,
+          weeklyHours: 44,
+          status: 'Ativo',
+          baseSalary: 195000,
+          foodAllowance: 30000,
+          transportAllowance: 25000,
+          familyAllowance: 9750,
+          leadershipAllowance: 0,
+          vacationDaysTaken: 5
+        },
+        {
+          id: 'EMP-006',
+          name: 'Beatriz Sofia Neto',
+          bi: '007182934LA049',
+          nif: '0071829340',
+          inss: '2349182736',
+          birthDate: '1999-06-11',
+          maritalStatus: 'Solteiro(a)',
+          nationality: 'Nacional',
+          bank: 'BAI',
+          iban: 'AO06004000009182736410109',
+          role: 'Assistente Administrativa',
+          maptssCode: '4110.01 - Escriturário Geral',
+          department: 'Administração',
+          contractType: 'Tempo Indeterminado',
+          admissionDate: '2025-04-01',
+          contractEndDate: '',
+          probationDays: 60,
+          weeklyHours: 44,
+          status: 'Ativo',
+          baseSalary: 145000,
+          foodAllowance: 25000,
+          transportAllowance: 25000,
+          familyAllowance: 0,
+          leadershipAllowance: 0,
+          vacationDaysTaken: 12
+        }
+      ],
+      attendance: {
+        'EMP-001': { ot50: 0, ot75: 0, ot100: 0, nightHours: 0, justifiedDays: 0, unjustifiedDays: 0, advanceDeduction: 0, includeVacationBonus: false },
+        'EMP-002': { ot50: 8, ot75: 0, ot100: 0, nightHours: 0, justifiedDays: 0, unjustifiedDays: 0, advanceDeduction: 50000, includeVacationBonus: false },
+        'EMP-003': { ot50: 12, ot75: 0, ot100: 4, nightHours: 0, justifiedDays: 1, unjustifiedDays: 0, advanceDeduction: 0, includeVacationBonus: false },
+        'EMP-004': { ot50: 0, ot75: 0, ot100: 0, nightHours: 0, justifiedDays: 0, unjustifiedDays: 0, advanceDeduction: 0, includeVacationBonus: false },
+        'EMP-005': { ot50: 18, ot75: 4, ot100: 6, nightHours: 10, justifiedDays: 0, unjustifiedDays: 1, advanceDeduction: 15000, includeVacationBonus: false },
+        'EMP-006': { ot50: 4, ot75: 0, ot100: 0, nightHours: 0, justifiedDays: 0, unjustifiedDays: 0, advanceDeduction: 0, includeVacationBonus: false }
+      },
+      vacations: [
+        { id: 'VAC-01', empId: 'EMP-001', startDate: '2026-08-03', endDate: '2026-08-14', businessDays: 10, bonusPaid: true, status: 'Gozadas' },
+        { id: 'VAC-02', empId: 'EMP-003', startDate: '2026-09-01', endDate: '2026-09-21', businessDays: 15, bonusPaid: true, status: 'Gozadas' },
+        { id: 'VAC-03', empId: 'EMP-002', startDate: '2026-12-07', endDate: '2026-12-23', businessDays: 12, bonusPaid: false, status: 'Agendadas' }
+      ],
+      terminations: []
+    };
+
+    // =========================================================================
+    // 2. GESTÃO DE ESTADO E UTILITÁRIOS
+    // =========================================================================
+    let state = loadState();
+    let currentRoute = 'dashboard';
+
+    function loadState() {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          // Garantir que Infinity da tabela IRT seja restaurado (JSON serializa Infinity como null)
+          if (parsed.params && parsed.params.irtTable2026) {
+            parsed.params.irtTable2026.forEach(row => {
+              if (row.max === null) row.max = Infinity;
+            });
+          }
+          return parsed;
+        }
+      } catch (e) {
+        console.error('Erro ao carregar localStorage:', e);
+      }
+      return JSON.parse(JSON.stringify(INITIAL_STATE));
+    }
+
+    function saveState() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        updateHeaderUI();
+      } catch (e) {
+        console.error('Erro ao salvar estado:', e);
+      }
+    }
+
+    function confirmResetDemo() {
+      showModal('Restaurar Dados de Demonstração', `
+        <div class="space-y-4">
+          <div class="p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-start gap-3">
+            <i class="fa-solid fa-triangle-exclamation text-amber-400 mt-1"></i>
+            <div class="text-sm text-slate-300">
+              <p class="font-semibold text-white">Deseja restaurar todos os dados iniciais de Luanda?</p>
+              <p class="mt-1 text-slate-400">Isto irá repor os 6 trabalhadores de exemplo, lançamentos de assiduidade, férias e parâmetros originais do OGE 2026.</p>
+            </div>
+          </div>
+          <div class="flex justify-end gap-3 pt-2">
+            <button onclick="closeModal()" class="px-4 py-2 rounded-xl bg-slateCard hover:bg-slate-700 text-sm text-slate-300">Cancelar</button>
+            <button onclick="executeResetDemo()" class="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-semibold text-sm">Sim, Restaurar Demo</button>
+          </div>
+        </div>
+      `);
+    }
+
+    function executeResetDemo() {
+      localStorage.removeItem(STORAGE_KEY);
+      state = JSON.parse(JSON.stringify(INITIAL_STATE));
+      state.params.irtTable2026[state.params.irtTable2026.length - 1].max = Infinity;
+      saveState();
+      closeModal();
+      renderCurrentRoute();
+      showToast('Dados de demonstração restaurados com sucesso!', 'success');
+    }
+
+    // Formatação Moeda Kwanza (AOA)
+    function formatKz(value) {
+      const num = Number(value) || 0;
+      return num.toLocaleString('pt-PT', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' Kz';
+    }
+
+    function formatDatePT(dateStr) {
+      if (!dateStr) return '—';
+      const [y, m, d] = dateStr.split('-');
+      return `${d}/${m}/${y}`;
+    }
+
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toast-container');
+      const colors = {
+        success: 'bg-emerald-950/95 border-emerald-500/50 text-emerald-200',
+        warning: 'bg-amber-950/95 border-amber-500/50 text-amber-200',
+        error: 'bg-rose-950/95 border-rose-500/50 text-rose-200',
+        info: 'bg-slateCard/95 border-gold-500/50 text-slate-100'
+      };
+      const icons = {
+        success: 'fa-circle-check text-emerald-400',
+        warning: 'fa-triangle-exclamation text-amber-400',
+        error: 'fa-circle-xmark text-rose-400',
+        info: 'fa-circle-info text-gold-500'
+      };
+
+      const toast = document.createElement('div');
+      toast.className = `pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-xl border shadow-xl text-sm font-medium transform transition-all duration-300 translate-y-2 opacity-0 ${colors[type] || colors.info}`;
+      toast.innerHTML = `<i class="fa-solid ${icons[type] || icons.info}"></i><span>${message}</span>`;
+      container.appendChild(toast);
+
+      requestAnimationFrame(() => {
+        toast.classList.remove('translate-y-2', 'opacity-0');
+      });
+
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'translate-y-2');
+        setTimeout(() => toast.remove(), 300);
+      }, 3500);
+    }
+
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.getElementById('sidebar-overlay');
+      sidebar.classList.toggle('-translate-x-full');
+      overlay.classList.toggle('hidden');
+    }
+
+    function updateHeaderUI() {
+      document.getElementById('header-company-name').textContent = state.company.name;
+      document.getElementById('header-company-nif').textContent = `NIF: ${state.company.nif}`;
+      document.getElementById('header-company-address').textContent = state.company.address;
+      document.getElementById('global-period').value = state.period;
+      document.getElementById('sidebar-min-wage').textContent = formatKz(state.params.minWageRef);
+    }
+
+    function changePeriod(newPeriod) {
+      state.period = newPeriod;
+      saveState();
+      renderCurrentRoute();
+      showToast(`Competência alterada para ${newPeriod}`, 'info');
+    }
+
+    // =========================================================================
+    // 3. MOTOR DE CÁLCULO LEGAL DE ANGOLA (LGT 12/23 + IRT 2026 + INSS)
+    // =========================================================================
+
+    /**
+     * Fórmula Exata do Salário-Hora - Art. 237.º n.º 7 da LGT (Lei n.º 12/23)
+     * S/H = (Sm * 12) / (52s * Hs)
+     */
+    function calcHourlyRate(baseSalary, weeklyHours = 44) {
+      return (baseSalary * 12) / (52 * (weeklyHours || 44));
+    }
+
+    /**
+     * Cálculo Progressivo do IRT 2026 (OGE 2026 / Lei n.º 14/25)
+     */
+    function calculateIRT2026(taxableIncome) {
+      if (taxableIncome <= 0) {
+        return { tax: 0, bracket: state.params.irtTable2026[0], excess: 0 };
+      }
+      const table = state.params.irtTable2026;
+      let bracket = table[0];
+      for (let i = 0; i < table.length; i++) {
+        const max = table[i].max === null ? Infinity : table[i].max;
+        if (taxableIncome >= table[i].min && taxableIncome <= max) {
+          bracket = table[i];
+          break;
+        }
+      }
+      if (bracket.taxa === 0) {
+        return { tax: 0, bracket, excess: 0 };
+      }
+      const excess = Math.max(0, taxableIncome - bracket.excesso);
+      const tax = bracket.fixa + (excess * bracket.taxa);
+      return { tax: Math.round(tax * 100) / 100, bracket, excess };
+    }
+
+    /**
+     * Processa a Folha Salarial de um Trabalhador na Competência Atual
+     */
+    function calculateEmployeePayroll(emp) {
+      const p = state.params;
+      const att = state.attendance[emp.id] || {
+        ot50: 0, ot75: 0, ot100: 0, nightHours: 0,
+        justifiedDays: 0, unjustifiedDays: 0, advanceDeduction: 0, includeVacationBonus: false
+      };
+
+      const hourlyRate = calcHourlyRate(emp.baseSalary, emp.weeklyHours);
+      const dailyHours = (emp.weeklyHours || 44) / 5.5; // média diária padrão 8h
+
+      // 1. Desconto por Faltas Injustificadas (Art. 240.º n.º 2)
+      const absenceHours = (att.unjustifiedDays || 0) * dailyHours;
+      const absenceDeduction = Math.round(absenceHours * hourlyRate * 100) / 100;
+      const effectiveBaseSalary = Math.max(0, emp.baseSalary - absenceDeduction);
+
+      // 2. Horas Extras e Adicional Noturno (Art. 182.º e 188.º LGT)
+      const ot50Pay = (att.ot50 || 0) * hourlyRate * 1.50;
+      const ot75Pay = (att.ot75 || 0) * hourlyRate * 1.75;
+      const ot100Pay = (att.ot100 || 0) * hourlyRate * 2.00;
+      const nightPay = (att.nightHours || 0) * hourlyRate * 0.20; // +20% adicional noturno
+      const totalOvertimePay = Math.round((ot50Pay + ot75Pay + ot100Pay + nightPay) * 100) / 100;
+
+      // 3. Subsídios Legais Anuais (Férias / Natal) se aplicável na competência
+      const vacationBonusPay = att.includeVacationBonus ? (emp.baseSalary * p.vacationBonusPct) : 0;
+      const isDecember = state.period.endsWith('-12');
+      // Proporcionalidade Subsídio de Natal no ano de 2026
+      const monthsWorked2026 = getMonthsWorkedInYear(emp.admissionDate, 2026);
+      const christmasBonusPay = isDecember ? Math.round(((emp.baseSalary * p.christmasBonusPct) / 12) * monthsWorked2026 * 100) / 100 : 0;
+
+      // 4. Subsídios Mensais
+      const foodAllowance = Number(emp.foodAllowance) || 0;
+      const transportAllowance = Number(emp.transportAllowance) || 0;
+      const familyAllowance = Number(emp.familyAllowance) || 0;
+      const leadershipAllowance = Number(emp.leadershipAllowance) || 0;
+
+      // Total Remuneração Bruta (Base de Incidência INSS)
+      const grossSalary = Math.round((
+        effectiveBaseSalary +
+        totalOvertimePay +
+        foodAllowance +
+        transportAllowance +
+        familyAllowance +
+        leadershipAllowance +
+        vacationBonusPay +
+        christmasBonusPay
+      ) * 100) / 100;
+
+      // 5. Segurança Social (INSS: 3% Trabalhador + 8% Entidade Empregadora sobre Bruto)
+      const inssWorker = Math.round(grossSalary * p.inssWorkerRate * 100) / 100;
+      const inssEmployer = Math.round(grossSalary * p.inssEmployerRate * 100) / 100;
+
+      // 6. Parcelas Isentas de IRT (Código do IRT)
+      const exemptFood = Math.min(foodAllowance, p.foodExemptCap);
+      const exemptTransport = Math.min(transportAllowance, p.transportExemptCap);
+      const exemptFamily = Math.min(familyAllowance, emp.baseSalary * p.familyAllowancePct);
+      const totalExemptions = exemptFood + exemptTransport + exemptFamily;
+
+      // 7. Matéria Coletável IRT
+      const taxableIncome = Math.max(0, Math.round((grossSalary - totalExemptions - inssWorker) * 100) / 100);
+
+      // 8. Cálculo IRT 2026
+      const irtResult = calculateIRT2026(taxableIncome);
+      const irtTax = irtResult.tax;
+
+      // 9. Outros Descontos (Adiantamentos - limite 25% do líquido parcial Art. 248.º n.º 7)
+      const netBeforeAdvance = grossSalary - inssWorker - irtTax;
+      const maxLegalDeduction = Math.round(netBeforeAdvance * 0.25 * 100) / 100;
+      const requestedAdvance = Number(att.advanceDeduction) || 0;
+      const appliedAdvance = Math.min(requestedAdvance, maxLegalDeduction);
+      const advanceCapped = requestedAdvance > maxLegalDeduction;
+
+      const totalDeductions = Math.round((inssWorker + irtTax + appliedAdvance) * 100) / 100;
+      const netSalary = Math.max(0, Math.round((grossSalary - totalDeductions) * 100) / 100);
+
+      return {
+        emp,
+        att,
+        hourlyRate,
+        absenceDeduction,
+        effectiveBaseSalary,
+        ot50Pay,
+        ot75Pay,
+        ot100Pay,
+        nightPay,
+        totalOvertimePay,
+        foodAllowance,
+        transportAllowance,
+        familyAllowance,
+        leadershipAllowance,
+        vacationBonusPay,
+        christmasBonusPay,
+        grossSalary,
+        inssWorker,
+        inssEmployer,
+        exemptFood,
+        exemptTransport,
+        exemptFamily,
+        totalExemptions,
+        taxableIncome,
+        irtBracket: irtResult.bracket,
+        irtExcess: irtResult.excess,
+        irtTax,
+        requestedAdvance,
+        appliedAdvance,
+        maxLegalDeduction,
+        advanceCapped,
+        totalDeductions,
+        netSalary
+      };
+    }
+
+    function getActiveEmployees() {
+      return state.employees.filter(e => e.status !== 'Cessado');
+    }
+
+    function getMonthsWorkedInYear(admissionDateStr, year) {
+      const adm = new Date(admissionDateStr + 'T00:00:00');
+      if (adm.getFullYear() < year) return 12;
+      if (adm.getFullYear() > year) return 0;
+      // Contam meses completos (dia <= 15 conta mês cheio para efeitos práticos)
+      const startMonth = adm.getDate() <= 15 ? adm.getMonth() : adm.getMonth() + 1;
+      return Math.max(0, 12 - startMonth);
+    }
+
+    function calculateSeniority(admissionDateStr, endDateStr) {
+      const start = new Date(admissionDateStr + 'T00:00:00');
+      const end = new Date(endDateStr + 'T00:00:00');
+      if (end < start) return { totalMonths: 0, years: 0, remMonths: 0, roundedYearsLGT: 0 };
+
+      let totalMonths = (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth());
+      if (end.getDate() < start.getDate()) totalMonths--;
+      totalMonths = Math.max(0, totalMonths);
+
+      const years = Math.floor(totalMonths / 12);
+      const remMonths = totalMonths % 12;
+      // Regra exata do Art. 311.º da LGT: fração >= 3 meses conta como 1 ano completo
+      const roundedYearsLGT = years + (remMonths >= 3 ? 1 : 0);
+
+      return { totalMonths, years, remMonths, roundedYearsLGT };
+    }
+
+    function getEntitledVacationDays(emp) {
+      const adm = new Date(emp.admissionDate + 'T00:00:00');
+      const refYear = 2026;
+      if (adm.getFullYear() < refYear) {
+        return 22; // Art. 204.º n.º 1: 22 dias úteis por ano civil
+      }
+      // Ano de admissão: 2 dias úteis por mês completo, mínimo 6 dias úteis após 6 meses (Art. 204.º n.º 2)
+      const months = getMonthsWorkedInYear(emp.admissionDate, refYear);
+      if (months < 6) return 0;
+      return Math.max(6, months * 2);
+    }
+
+    // =========================================================================
+    // 4. ROTEAMENTO E NAVEGAÇÃO
+    // =========================================================================
+    function navigate(route) {
+      currentRoute = route;
+      document.querySelectorAll('.nav-btn').forEach(btn => {
+        if (btn.dataset.route === route) {
+          btn.classList.add('bg-amber-500/15', 'text-amber-400', 'border', 'border-amber-500/30');
+          btn.classList.remove('text-slate-400', 'hover:bg-slateCard', 'hover:text-slate-200');
+        } else {
+          btn.classList.remove('bg-amber-500/15', 'text-amber-400', 'border', 'border-amber-500/30');
+          btn.classList.add('text-slate-400', 'hover:bg-slateCard', 'hover:text-slate-200');
+        }
+      });
+
+      if (window.innerWidth < 1024) {
+        const sidebar = document.getElementById('sidebar');
+        if (!sidebar.classList.contains('-translate-x-full')) {
+          toggleSidebar();
+        }
+      }
+
+      renderCurrentRoute();
+    }
+
+    function renderCurrentRoute() {
+      const container = document.getElementById('app-content');
+      switch (currentRoute) {
+        case 'dashboard': renderDashboard(container); break;
+        case 'employees': renderEmployees(container); break;
+        case 'attendance': renderAttendance(container); break;
+        case 'payroll': renderPayroll(container); break;
+        case 'vacations': renderVacations(container); break;
+        case 'termination': renderTermination(container); break;
+        case 'settings': renderSettings(container); break;
+      }
+    }
+
+    // =========================================================================
+    // 5. MÓDULO 1: DASHBOARD EXECUTIVO
+    // =========================================================================
+    function renderDashboard(container) {
+      const activeEmps = getActiveEmployees();
+      const payrolls = activeEmps.map(e => calculateEmployeePayroll(e));
+
+      const totalGross = payrolls.reduce((acc, p) => acc + p.grossSalary, 0);
+      const totalNet = payrolls.reduce((acc, p) => acc + p.netSalary, 0);
+      const totalIRT = payrolls.reduce((acc, p) => acc + p.irtTax, 0);
+      const totalINSSWorker = payrolls.reduce((acc, p) => acc + p.inssWorker, 0);
+      const totalINSSEmployer = payrolls.reduce((acc, p) => acc + p.inssEmployer, 0);
+      const totalCompanyCost = totalGross + totalINSSEmployer;
+
+      // Alertas Legais Inteligentes LGT 12/23
+      const alerts = [];
+      activeEmps.forEach(emp => {
+        if (emp.status === 'Período Experimental') {
+          alerts.push({
+            type: 'warning',
+            title: `Período Experimental em Curso — ${emp.name}`,
+            desc: `Contrato iniciado em ${formatDatePT(emp.admissionDate)} (${emp.probationDays} dias). Cessação livre sem aviso prévio durante este prazo (Art. 18.º n.º 4 LGT).`
+          });
+        }
+        if (emp.contractType === 'Tempo Determinado' && emp.contractEndDate) {
+          alerts.push({
+            type: 'info',
+            title: `Contrato a Termo Certo — ${emp.name}`,
+            desc: `Término previsto em ${formatDatePT(emp.contractEndDate)}. Atenção ao aviso prévio obrigatório de 30 dias caso não haja renovação (Art. 17.º n.º 3 LGT).`
+          });
+        }
+        const entitled = getEntitledVacationDays(emp);
+        const remaining = entitled - (emp.vacationDaysTaken || 0);
+        if (remaining > 10) {
+          alerts.push({
+            type: 'neutral',
+            title: `Saldo de Férias Acumulado — ${emp.name}`,
+            desc: `Possui ${remaining} dias úteis por gozar referentes ao plano anual (Art. 206.º e 207.º LGT).`
+          });
+        }
+      });
+
+      // Agrupamento por Departamento
+      const deptMap = {};
+      payrolls.forEach(p => {
+        const d = p.emp.department || 'Geral';
+        deptMap[d] = (deptMap[d] || 0) + p.grossSalary;
+      });
+      const deptEntries = Object.entries(deptMap).sort((a, b) => b[1] - a[1]);
+
+      container.innerHTML = `
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h2 class="text-2xl font-bold text-white tracking-tight">Dashboard Executivo de Capital Humano</h2>
+            <p class="text-sm text-slate-400">Visão consolidada de custos salariais, retenções fiscais e conformidade LGT (Angola).</p>
+          </div>
+          <div class="flex gap-2">
+            <button onclick="navigate('payroll')" class="px-4 py-2 rounded-xl gold-gradient text-obsidian font-semibold text-xs shadow-lg shadow-amber-500/15 hover:opacity-95 transition flex items-center gap-2">
+              <i class="fa-solid fa-calculator"></i> Processar Folha (${state.period})
+            </button>
+          </div>
+        </div>
+
+        <!-- KPIs Principais -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-4">
+          <div class="card-surface rounded-2xl p-5">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-medium text-slate-400">Quadro Ativo</span>
+              <span class="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-400 flex items-center justify-center"><i class="fa-solid fa-users text-sm"></i></span>
+            </div>
+            <div class="mt-3 text-2xl font-bold text-white">${activeEmps.length} <span class="text-xs font-normal text-slate-400">trabalhadores</span></div>
+            <div class="mt-1 text-[11px] text-emerald-400">100% inscritos no INSS</div>
+          </div>
+
+          <div class="card-surface rounded-2xl p-5">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-medium text-slate-400">Massa Salarial Bruta</span>
+              <span class="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center"><i class="fa-solid fa-coins text-sm"></i></span>
+            </div>
+            <div class="mt-3 text-xl font-bold font-mono text-white">${formatKz(totalGross)}</div>
+            <div class="mt-1 text-[11px] text-slate-400">Custo Total c/ INSS 8%: <span class="text-slate-200 font-mono">${formatKz(totalCompanyCost)}</span></div>
+          </div>
+
+          <div class="card-surface rounded-2xl p-5">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-medium text-slate-400">Total Líquido a Pagar</span>
+              <span class="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center"><i class="fa-solid fa-money-bill-transfer text-sm"></i></span>
+            </div>
+            <div class="mt-3 text-xl font-bold font-mono text-emerald-400">${formatKz(totalNet)}</div>
+            <div class="mt-1 text-[11px] text-slate-400">Ficheiro Bancário PS2 (EMIS)</div>
+          </div>
+
+          <div class="card-surface rounded-2xl p-5">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-medium text-slate-400">Retenção IRT (AGT)</span>
+              <span class="w-8 h-8 rounded-lg bg-purple-500/10 text-purple-400 flex items-center justify-center"><i class="fa-solid fa-landmark text-sm"></i></span>
+            </div>
+            <div class="mt-3 text-xl font-bold font-mono text-purple-300">${formatKz(totalIRT)}</div>
+            <div class="mt-1 text-[11px] text-slate-400">Tabela OGE 2026 (Lei 14/25)</div>
+          </div>
+
+          <div class="card-surface rounded-2xl p-5">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-medium text-slate-400">Guia INSS (3% + 8%)</span>
+              <span class="w-8 h-8 rounded-lg bg-cyan-500/10 text-cyan-400 flex items-center justify-center"><i class="fa-solid fa-shield-halved text-sm"></i></span>
+            </div>
+            <div class="mt-3 text-xl font-bold font-mono text-cyan-300">${formatKz(totalINSSWorker + totalINSSEmployer)}</div>
+            <div class="mt-1 text-[11px] text-slate-400">3%: ${formatKz(totalINSSWorker)} | 8%: ${formatKz(totalINSSEmployer)}</div>
+          </div>
+        </div>
+
+        <!-- Gráfico de Custos por Departamento & Obrigações Legais -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          
+          <!-- Distribuição por Departamento -->
+          <div class="lg:col-span-2 card-surface rounded-2xl p-6">
+            <div class="flex items-center justify-between mb-5">
+              <div>
+                <h3 class="font-bold text-white">Distribuição de Massa Salarial por Departamento</h3>
+                <p class="text-xs text-slate-400">Proporção sobre o total bruto processado na competência ${state.period}</p>
+              </div>
+              <span class="text-xs px-2.5 py-1 rounded-lg bg-slateCard border border-slateBorder font-mono text-gold-500">AOA (Kz)</span>
+            </div>
+
+            <div class="space-y-4">
+              ${deptEntries.map(([dept, val]) => {
+                const pct = totalGross > 0 ? ((val / totalGross) * 100).toFixed(1) : 0;
+                return `
+                  <div>
+                    <div class="flex justify-between text-xs mb-1.5">
+                      <span class="font-medium text-slate-200">${dept}</span>
+                      <span class="font-mono text-slate-300">${formatKz(val)} <span class="text-amber-400 font-semibold">(${pct}%)</span></span>
+                    </div>
+                    <div class="w-full h-2.5 bg-obsidian rounded-full overflow-hidden border border-slateBorder/50">
+                      <div class="h-full gold-gradient rounded-full transition-all duration-500" style="width: ${pct}%"></div>
+                    </div>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+
+            <!-- Resumo de Encargos Empresa -->
+            <div class="mt-6 pt-5 border-t border-slateBorder grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div class="p-3 rounded-xl bg-obsidian/70 border border-slateBorder/60">
+                <span class="text-[11px] text-slate-400 block">Salários Base Efectivos</span>
+                <span class="font-mono font-semibold text-sm text-white">${formatKz(payrolls.reduce((a, b) => a + b.effectiveBaseSalary, 0))}</span>
+              </div>
+              <div class="p-3 rounded-xl bg-obsidian/70 border border-slateBorder/60">
+                <span class="text-[11px] text-slate-400 block">Subsídios & Horas Extras</span>
+                <span class="font-mono font-semibold text-sm text-amber-400">${formatKz(payrolls.reduce((a, b) => a + b.foodAllowance + b.transportAllowance + b.familyAllowance + b.leadershipAllowance + b.totalOvertimePay + b.christmasBonusPay + b.vacationBonusPay, 0))}</span>
+              </div>
+              <div class="p-3 rounded-xl bg-obsidian/70 border border-slateBorder/60">
+                <span class="text-[11px] text-slate-400 block">Encargo Patronal INSS (8%)</span>
+                <span class="font-mono font-semibold text-sm text-cyan-400">${formatKz(totalINSSEmployer)}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Painel de Alertas Legais LGT 12/23 -->
+          <div class="card-surface rounded-2xl p-6 flex flex-col">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="font-bold text-white flex items-center gap-2">
+                <i class="fa-solid fa-bell text-gold-500"></i> Compliance & Prazos LGT
+              </h3>
+              <span class="text-xs px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-400 font-semibold">${alerts.length + 2}</span>
+            </div>
+
+            <div class="space-y-3 overflow-y-auto max-h-80 pr-1">
+              <div class="p-3 rounded-xl bg-cyan-950/30 border border-cyan-800/40 text-xs">
+                <div class="font-semibold text-cyan-300 flex items-center gap-1.5">
+                  <i class="fa-solid fa-calendar-check"></i> Entrega Folha INSS
+                </div>
+                <p class="text-slate-400 mt-1">Submissão e pagamento da guia de 11% (3% + 8%) no portal INSS até o <strong>dia 10 do mês seguinte</strong>.</p>
+              </div>
+
+              <div class="p-3 rounded-xl bg-purple-950/30 border border-purple-800/40 text-xs">
+                <div class="font-semibold text-purple-300 flex items-center gap-1.5">
+                  <i class="fa-solid fa-file-invoice"></i> Declaração Mensal IRT (AGT)
+                </div>
+                <p class="text-slate-400 mt-1">Submissão do Mapa de Retenção no Portal do Contribuinte AGT até o <strong>último dia útil do mês seguinte</strong>.</p>
+              </div>
+
+              ${alerts.map(a => `
+                <div class="p-3 rounded-xl ${a.type === 'warning' ? 'bg-amber-950/30 border-amber-700/40' : 'bg-obsidian/80 border-slateBorder'} border text-xs">
+                  <div class="font-semibold ${a.type === 'warning' ? 'text-amber-300' : 'text-slate-200'}">${a.title}</div>
+                  <p class="text-slate-400 mt-1 leading-relaxed">${a.desc}</p>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+
+        </div>
+      `;
+    }
+
+    // =========================================================================
+    // 6. MÓDULO 2: CADASTRO E ADMISSÃO DE TRABALHADORES
+    // =========================================================================
+    let employeeSearch = '';
+    let employeeFilter = 'TODOS';
+
+    function renderEmployees(container) {
+      const filtered = state.employees.filter(emp => {
+        const matchesSearch = emp.name.toLowerCase().includes(employeeSearch.toLowerCase()) ||
+          emp.bi.toLowerCase().includes(employeeSearch.toLowerCase()) ||
+          emp.role.toLowerCase().includes(employeeSearch.toLowerCase());
+        const matchesFilter = employeeFilter === 'TODOS' || emp.status === employeeFilter;
+        return matchesSearch && matchesFilter;
+      });
+
+      container.innerHTML = `
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h2 class="text-2xl font-bold text-white tracking-tight">Cadastro & Admissão de Trabalhadores</h2>
+            <p class="text-sm text-slate-400">Gestão contratual conforme Art. 12.º a 18.º da LGT (Lei n.º 12/23) e Qualificador MAPTSS.</p>
+          </div>
+          <button onclick="openAdmissionModal()" class="px-4 py-2.5 rounded-xl gold-gradient text-obsidian font-bold text-xs shadow-lg shadow-amber-500/20 hover:opacity-95 transition flex items-center gap-2 self-start sm:self-auto">
+            <i class="fa-solid fa-user-plus"></i> Nova Admissão
+          </button>
+        </div>
+
+        <!-- Filtros e Busca -->
+        <div class="card-surface rounded-2xl p-4 flex flex-col md:flex-row gap-3 justify-between">
+          <div class="relative flex-1">
+            <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-500 text-sm"></i>
+            <input type="text" value="${employeeSearch}" oninput="employeeSearch = this.value; renderCurrentRoute()" placeholder="Pesquisar por nome, Bilhete de Identidade (BI) ou cargo..." class="input-dark w-full pl-10 pr-4 py-2 rounded-xl text-sm" />
+          </div>
+          <div class="flex flex-wrap gap-2">
+            ${['TODOS', 'Ativo', 'Período Experimental', 'Férias', 'Cessado'].map(st => `
+              <button onclick="employeeFilter = '${st}'; renderCurrentRoute()" class="px-3 py-2 rounded-xl text-xs font-medium border transition ${employeeFilter === st ? 'bg-amber-500/20 border-amber-500/40 text-amber-300' : 'bg-obsidian border-slateBorder text-slate-400 hover:text-white'}">
+                ${st}
+              </button>
+            `).join('')}
+          </div>
+        </div>
+
+        <!-- Tabela de Trabalhadores -->
+        <div class="card-surface rounded-2xl overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="border-b border-slateBorder bg-obsidian/60 text-[11px] uppercase tracking-wider text-slate-400">
+                  <th class="py-3.5 px-4">Trabalhador / BI / NIF</th>
+                  <th class="py-3.5 px-4">Cargo & Qualificador MAPTSS</th>
+                  <th class="py-3.5 px-4">Contrato & Admissão</th>
+                  <th class="py-3.5 px-4">Banco / IBAN</th>
+                  <th class="py-3.5 px-4 text-right">Salário Base</th>
+                  <th class="py-3.5 px-4 text-center">Estado</th>
+                  <th class="py-3.5 px-4 text-right">Acções</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slateBorder/60 text-sm">
+                ${filtered.length === 0 ? `
+                  <tr><td colspan="7" class="py-8 text-center text-slate-400">Nenhum trabalhador encontrado com os filtros seleccionados.</td></tr>
+                ` : filtered.map(emp => {
+                  const statusBadge = {
+                    'Ativo': 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30',
+                    'Período Experimental': 'bg-amber-500/15 text-amber-400 border-amber-500/30',
+                    'Férias': 'bg-blue-500/15 text-blue-400 border-blue-500/30',
+                    'Cessado': 'bg-rose-500/15 text-rose-400 border-rose-500/30'
+                  }[emp.status] || 'bg-slate-700 text-slate-300';
+
+                  return `
+                    <tr class="hover:bg-slateCard/50 transition">
+                      <td class="py-3.5 px-4">
+                        <div class="font-semibold text-white">${emp.name}</div>
+                        <div class="text-xs font-mono text-slate-400 mt-0.5">BI: ${emp.bi} • NIF: ${emp.nif}</div>
+                        <div class="text-[11px] font-mono text-cyan-400/80">INSS: ${emp.inss}</div>
+                      </td>
+                      <td class="py-3.5 px-4">
+                        <div class="font-medium text-slate-200">${emp.role}</div>
+                        <div class="text-xs text-slate-400">${emp.department}</div>
+                        <div class="text-[11px] text-amber-400/80 font-mono mt-0.5">${emp.maptssCode || '—'}</div>
+                      </td>
+                      <td class="py-3.5 px-4">
+                        <div class="text-xs font-medium text-slate-200">${emp.contractType}</div>
+                        <div class="text-xs text-slate-400">Adm: ${formatDatePT(emp.admissionDate)}</div>
+                        <div class="text-[11px] text-slate-500">Exp: ${emp.probationDays} dias • ${emp.weeklyHours}h/sem</div>
+                      </td>
+                      <td class="py-3.5 px-4">
+                        <div class="text-xs font-semibold text-slate-300">${emp.bank}</div>
+                        <div class="text-[11px] font-mono text-slate-400">${emp.iban.slice(0, 8)}...${emp.iban.slice(-4)}</div>
+                      </td>
+                      <td class="py-3.5 px-4 text-right font-mono font-semibold text-white">
+                        ${formatKz(emp.baseSalary)}
+                        <div class="text-[11px] font-normal text-slate-400">+${formatKz((emp.foodAllowance || 0) + (emp.transportAllowance || 0) + (emp.leadershipAllowance || 0) + (emp.familyAllowance || 0))} subs.</div>
+                      </td>
+                      <td class="py-3.5 px-4 text-center">
+                        <span class="px-2.5 py-1 rounded-full text-[11px] font-semibold border ${statusBadge}">${emp.status}</span>
+                      </td>
+                      <td class="py-3.5 px-4 text-right">
+                        <div class="flex items-center justify-end gap-1.5">
+                          <button onclick="printContract('${emp.id}')" class="p-2 rounded-lg bg-obsidian hover:bg-amber-500/20 border border-slateBorder text-amber-400 text-xs" title="Gerar Minuta de Contrato (Art. 13.º LGT)">
+                            <i class="fa-solid fa-file-contract"></i>
+                          </button>
+                          <button onclick="openAdmissionModal('${emp.id}')" class="p-2 rounded-lg bg-obsidian hover:bg-slate-700 border border-slateBorder text-slate-300 text-xs" title="Editar Ficha do Trabalhador">
+                            <i class="fa-solid fa-pen-to-square"></i>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  `;
+                }).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+    }
+
+    function openAdmissionModal(empId = null) {
+      const emp = empId ? state.employees.find(e => e.id === empId) : {
+        id: 'EMP-' + String(state.employees.length + 1).padStart(3, '0'),
+        name: '',
+        bi: '',
+        nif: '',
+        inss: '',
+        birthDate: '1992-01-01',
+        maritalStatus: 'Solteiro(a)',
+        nationality: 'Nacional',
+        bank: 'BAI',
+        iban: 'AO0600400000',
+        role: '',
+        maptssCode: '2421.01 - Técnico Especialista',
+        department: 'Operações',
+        contractType: 'Tempo Indeterminado',
+        admissionDate: new Date().toISOString().split('T')[0],
+        contractEndDate: '',
+        probationDays: 60,
+        weeklyHours: 44,
+        status: 'Período Experimental',
+        baseSalary: 250000,
+        foodAllowance: 30000,
+        transportAllowance: 30000,
+        familyAllowance: 0,
+        leadershipAllowance: 0,
+        vacationDaysTaken: 0
+      };
+
+      const isEdit = Boolean(empId);
+
+      showModal(isEdit ? `Ficha do Trabalhador — ${emp.name}` : 'Nova Admissão de Trabalhador (LGT Lei n.º 12/23)', `
+        <form id="employee-form" onsubmit="saveEmployeeForm(event, ${isEdit})" class="space-y-6 text-sm">
+          <input type="hidden" name="id" value="${emp.id}" />
+
+          <!-- Secção 1: Identificação Civil e Fiscal -->
+          <div>
+            <h4 class="text-xs font-bold uppercase tracking-wider text-gold-500 mb-3 flex items-center gap-2">
+              <i class="fa-solid fa-id-card"></i> 1. Identificação Civil, Fiscal (AGT) e Segurança Social (INSS)
+            </h4>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div class="sm:col-span-2">
+                <label class="block text-xs text-slate-400 mb-1">Nome Completo *</label>
+                <input type="text" name="name" required value="${emp.name}" placeholder="Ex: António José dos Santos" class="input-dark w-full px-3 py-2 rounded-xl" />
+              </div>
+              <div>
+                <label class="block text-xs text-slate-400 mb-1">Nacionalidade</label>
+                <select name="nationality" class="input-dark w-full px-3 py-2 rounded-xl">
+                  <option value="Nacional" ${emp.nationality === 'Nacional' ? 'selected' : ''}>Angolana (Nacional)</option>
+                  <option value="Estrangeiro Residente" ${emp.nationality === 'Estrangeiro Residente' ? 'selected' : ''}>Estrangeiro Residente</option>
+                  <option value="Estrangeiro Não Residente" ${emp.nationality === 'Estrangeiro Não Residente' ? 'selected' : ''}>Estrangeiro Não Residente (Art. 56.º)</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs text-slate-400 mb-1">Bilhete de Identidade (BI) / Passaporte *</label>
+                <input type="text" name="bi" required value="${emp.bi}" placeholder="004582910LA042" class="input-dark w-full px-3 py-2 rounded-xl font-mono uppercase" />
+              </div>
+              <div>
+                <label class="block text-xs text-slate-400 mb-1">NIF (AGT - 10 dígitos) *</label>
+                <input type="text" name="nif" required maxlength="14" value="${emp.nif}" placeholder="0045829104" class="input-dark w-full px-3 py-2 rounded-xl font-mono" />
+              </div>
+              <div>
+                <label class="block text-xs text-slate-400 mb-1">N.º Beneficiário INSS *</label>
+                <input type="text" name="inss" required value="${emp.inss}" placeholder="2094817263" class="input-dark w-full px-3 py-2 rounded-xl font-mono" />
+              </div>
+              <div>
+                <label class="block text-xs text-slate-400 mb-1">Data de Nascimento</label>
+                <input type="date" name="birthDate" value="${emp.birthDate}" class="input-dark w-full px-3 py-2 rounded-xl" />
+              </div>
+              <div>
+                <label class="block text-xs text-slate-400 mb-1">Estado Civil</label>
+                <select name="maritalStatus" class="input-dark w-full px-3 py-2 rounded-xl">
+                  <option ${emp.maritalStatus === 'Solteiro(a)' ? 'selected' : ''}>Solteiro(a)</option>
+                  <option ${emp.maritalStatus === 'Casado(a)' ? 'selected' : ''}>Casado(a)</option>
+                  <option ${emp.maritalStatus === 'União de Facto' ? 'selected' : ''}>União de Facto</option>
+                  <option ${emp.maritalStatus === 'Divorciado(a)' ? 'selected' : ''}>Divorciado(a)</option>
+                  <option ${emp.maritalStatus === 'Viúvo(a)' ? 'selected' : ''}>Viúvo(a)</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs text-slate-400 mb-1">Estado Laboral</label>
+                <select name="status" class="input-dark w-full px-3 py-2 rounded-xl">
+                  <option value="Período Experimental" ${emp.status === 'Período Experimental' ? 'selected' : ''}>Período Experimental</option>
+                  <option value="Ativo" ${emp.status === 'Ativo' ? 'selected' : ''}>Ativo (Efectivo)</option>
+                  <option value="Férias" ${emp.status === 'Férias' ? 'selected' : ''}>Em Gozo de Férias</option>
+                  <option value="Cessado" ${emp.status === 'Cessado' ? 'selected' : ''}>Cessado</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Secção 2: Dados Bancários (Angola) -->
+          <div class="pt-4 border-t border-slateBorder">
+            <h4 class="text-xs font-bold uppercase tracking-wider text-gold-500 mb-3 flex items-center gap-2">
+              <i class="fa-solid fa-building-columns"></i> 2. Coordenadas Bancárias (Transferência PS2 / EMIS)
+            </h4>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div>
+                <label class="block text-xs text-slate-400 mb-1">Banco Comercial</label>
+                <select name="bank" class="input-dark w-full px-3 py-2 rounded-xl">
+                  ${['BAI', 'BFA', 'BIC', 'Standard Bank', 'Atlântico', 'Banco Sol', 'BPC', 'BNI'].map(b => `
+                    <option value="${b}" ${emp.bank === b ? 'selected' : ''}>${b}</option>
+                  `).join('')}
+                </select>
+              </div>
+              <div class="sm:col-span-2">
+                <label class="block text-xs text-slate-400 mb-1">IBAN Angolano (21 dígitos após AO06) *</label>
+                <input type="text" name="iban" required maxlength="25" value="${emp.iban}" placeholder="AO06004000001234567810199" class="input-dark w-full px-3 py-2 rounded-xl font-mono uppercase" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Secção 3: Enquadramento Contratual (LGT Lei 12/23) -->
+          <div class="pt-4 border-t border-slateBorder">
+            <h4 class="text-xs font-bold uppercase tracking-wider text-gold-500 mb-3 flex items-center gap-2">
+              <i class="fa-solid fa-briefcase"></i> 3. Enquadramento Contratual & MAPTSS (Art. 13.º a 18.º LGT)
+            </h4>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div>
+                <label class="block text-xs text-slate-400 mb-1">Cargo / Função *</label>
+                <input type="text" name="role" required value="${emp.role}" placeholder="Ex: Gestor Comercial" class="input-dark w-full px-3 py-2 rounded-xl" />
+              </div>
+              <div>
+                <label class="block text-xs text-slate-400 mb-1">Qualificador Ocupacional (RENT/MAPTSS)</label>
+                <input type="text" name="maptssCode" value="${emp.maptssCode}" placeholder="Código e Designação Oficial" class="input-dark w-full px-3 py-2 rounded-xl font-mono text-xs" />
+              </div>
+              <div>
+                <label class="block text-xs text-slate-400 mb-1">Departamento</label>
+                <input type="text" name="department" value="${emp.department}" placeholder="Ex: Engenharia & TI" class="input-dark w-full px-3 py-2 rounded-xl" />
+              </div>
+              <div>
+                <label class="block text-xs text-slate-400 mb-1">Modalidade de Contrato</label>
+                <select name="contractType" class="input-dark w-full px-3 py-2 rounded-xl">
+                  <option value="Tempo Indeterminado" ${emp.contractType === 'Tempo Indeterminado' ? 'selected' : ''}>Tempo Indeterminado (Regra Geral - Art. 14.º)</option>
+                  <option value="Tempo Determinado" ${emp.contractType === 'Tempo Determinado' ? 'selected' : ''}>Tempo Determinado / Prazo Certo (Art. 15.º)</option>
+                  <option value="Comissão de Serviço" ${emp.contractType === 'Comissão de Serviço' ? 'selected' : ''}>Comissão de Serviço (Chefia/Direcção - Art. 65.º)</option>
+                  <option value="Teletrabalho" ${emp.contractType === 'Teletrabalho' ? 'selected' : ''}>Teletrabalho (Art. 62.º)</option>
+                  <option value="Estágio Profissional" ${emp.contractType === 'Estágio Profissional' ? 'selected' : ''}>Estágio Profissional (Art. 57.º)</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs text-slate-400 mb-1">Data de Admissão *</label>
+                <input type="date" name="admissionDate" required value="${emp.admissionDate}" class="input-dark w-full px-3 py-2 rounded-xl" />
+              </div>
+              <div>
+                <label class="block text-xs text-slate-400 mb-1">Período Experimental (Art. 18.º)</label>
+                <select name="probationDays" class="input-dark w-full px-3 py-2 rounded-xl">
+                  <option value="30" ${emp.probationDays == 30 ? 'selected' : ''}>30 dias (Contrato a Termo Certo)</option>
+                  <option value="60" ${emp.probationDays == 60 ? 'selected' : ''}>60 dias (Regra Geral Indeterminado)</option>
+                  <option value="120" ${emp.probationDays == 120 ? 'selected' : ''}>120 dias (Técnico Alta Complexidade)</option>
+                  <option value="180" ${emp.probationDays == 180 ? 'selected' : ''}>180 dias (Cargos de Direcção/Chefia)</option>
+                  <option value="0" ${emp.probationDays == 0 ? 'selected' : ''}>Suprimido por acordo escrito</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs text-slate-400 mb-1">Jornada Semanal (Horas - Art. 148.º)</label>
+                <input type="number" name="weeklyHours" min="10" max="54" value="${emp.weeklyHours}" class="input-dark w-full px-3 py-2 rounded-xl font-mono" />
+              </div>
+              <div>
+                <label class="block text-xs text-slate-400 mb-1">Termo do Contrato (se Prazo Certo)</label>
+                <input type="date" name="contractEndDate" value="${emp.contractEndDate || ''}" class="input-dark w-full px-3 py-2 rounded-xl" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Secção 4: Estrutura Remuneratória (Kwanzas) -->
+          <div class="pt-4 border-t border-slateBorder">
+            <h4 class="text-xs font-bold uppercase tracking-wider text-gold-500 mb-3 flex items-center gap-2">
+              <i class="fa-solid fa-money-bill-wave"></i> 4. Estrutura Remuneratória Mensal (AOA / Kz)
+            </h4>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div>
+                <label class="block text-xs text-slate-400 mb-1">Salário Base Mensal (Kz) *</label>
+                <input type="number" name="baseSalary" required min="0" step="100" value="${emp.baseSalary}" class="input-dark w-full px-3 py-2 rounded-xl font-mono font-semibold text-white" />
+              </div>
+              <div>
+                <label class="block text-xs text-slate-400 mb-1">Subsídio Alimentação (Isento até ${formatKz(state.params.foodExemptCap)})</label>
+                <input type="number" name="foodAllowance" min="0" step="100" value="${emp.foodAllowance}" class="input-dark w-full px-3 py-2 rounded-xl font-mono" />
+              </div>
+              <div>
+                <label class="block text-xs text-slate-400 mb-1">Subsídio Transporte (Isento até ${formatKz(state.params.transportExemptCap)})</label>
+                <input type="number" name="transportAllowance" min="0" step="100" value="${emp.transportAllowance}" class="input-dark w-full px-3 py-2 rounded-xl font-mono" />
+              </div>
+              <div>
+                <label class="block text-xs text-slate-400 mb-1">Abono de Família (Isento até 5% do Base)</label>
+                <input type="number" name="familyAllowance" min="0" step="100" value="${emp.familyAllowance}" class="input-dark w-full px-3 py-2 rounded-xl font-mono" />
+              </div>
+              <div>
+                <label class="block text-xs text-slate-400 mb-1">Subsídio Chefia / Isenção Horário (100% Trib.)</label>
+                <input type="number" name="leadershipAllowance" min="0" step="100" value="${emp.leadershipAllowance}" class="input-dark w-full px-3 py-2 rounded-xl font-mono" />
+              </div>
+            </div>
+          </div>
+
+          <div class="flex justify-end gap-3 pt-4 border-t border-slateBorder">
+            <button type="button" onclick="closeModal()" class="px-4 py-2.5 rounded-xl bg-slateCard hover:bg-slate-700 text-slate-300 font-medium">Cancelar</button>
+            <button type="submit" class="px-6 py-2.5 rounded-xl gold-gradient text-obsidian font-bold shadow-lg shadow-amber-500/20 hover:opacity-95">
+              ${isEdit ? 'Guardar Alterações' : 'Confirmar Admissão'}
+            </button>
+          </div>
+        </form>
+      `);
+    }
+
+    function saveEmployeeForm(event, isEdit) {
+      event.preventDefault();
+      const fd = new FormData(event.target);
+      const ibanVal = fd.get('iban').trim().toUpperCase();
+      if (!ibanVal.startsWith('AO06') || ibanVal.length < 21) {
+        showToast('Atenção: O IBAN angolano deve iniciar por AO06 e conter 25 caracteres alfanuméricos.', 'warning');
+      }
+
+      const empData = {
+        id: fd.get('id'),
+        name: fd.get('name').trim(),
+        bi: fd.get('bi').trim().toUpperCase(),
+        nif: fd.get('nif').trim(),
+        inss: fd.get('inss').trim(),
+        birthDate: fd.get('birthDate'),
+        maritalStatus: fd.get('maritalStatus'),
+        nationality: fd.get('nationality'),
+        bank: fd.get('bank'),
+        iban: ibanVal,
+        role: fd.get('role').trim(),
+        maptssCode: fd.get('maptssCode').trim(),
+        department: fd.get('department').trim(),
+        contractType: fd.get('contractType'),
+        admissionDate: fd.get('admissionDate'),
+        contractEndDate: fd.get('contractEndDate'),
+        probationDays: Number(fd.get('probationDays')),
+        weeklyHours: Number(fd.get('weeklyHours')) || 44,
+        status: fd.get('status'),
+        baseSalary: Number(fd.get('baseSalary')) || 0,
+        foodAllowance: Number(fd.get('foodAllowance')) || 0,
+        transportAllowance: Number(fd.get('transportAllowance')) || 0,
+        familyAllowance: Number(fd.get('familyAllowance')) || 0,
+        leadershipAllowance: Number(fd.get('leadershipAllowance')) || 0,
+        vacationDaysTaken: isEdit ? (state.employees.find(e => e.id === fd.get('id'))?.vacationDaysTaken || 0) : 0
+      };
+
+      if (isEdit) {
+        const idx = state.employees.findIndex(e => e.id === empData.id);
+        if (idx !== -1) state.employees[idx] = empData;
+        showToast(`Ficha de ${empData.name} actualizada com sucesso!`, 'success');
+      } else {
+        state.employees.push(empData);
+        state.attendance[empData.id] = { ot50: 0, ot75: 0, ot100: 0, nightHours: 0, justifiedDays: 0, unjustifiedDays: 0, advanceDeduction: 0, includeVacationBonus: false };
+        showToast(`Trabalhador ${empData.name} admitido no quadro de pessoal!`, 'success');
+      }
+
+      saveState();
+      closeModal();
+      renderCurrentRoute();
+    }
+
+    function printContract(empId) {
+      const emp = state.employees.find(e => e.id === empId);
+      if (!emp) return;
+      const c = state.company;
+
+      showModal(`Minuta de Contrato de Trabalho — ${emp.name}`, `
+        <div id="print-area" class="bg-white text-slate-900 p-8 rounded-xl font-serif text-sm leading-relaxed space-y-4">
+          <div class="text-center border-b-2 border-slate-800 pb-4">
+            <h2 class="text-lg font-bold uppercase tracking-wide">CONTRATO DE TRABALHO POR ${emp.contractType.toUpperCase()}</h2>
+            <p class="text-xs text-slate-600 font-sans mt-1">Celebrado ao abrigo da Lei Geral do Trabalho da República de Angola (Lei n.º 12/23, de 27 de Dezembro — Artigos 12.º a 18.º)</p>
+          </div>
+
+          <p><strong>ENTRE:</strong></p>
+          <p><strong>PRIMEIRA OUTORGANTE (Entidade Empregadora):</strong> <strong>${c.name}</strong>, pessoa colectiva de direito privado, titular do NIF n.º <strong>${c.nif}</strong>, contribuinte da Segurança Social n.º <strong>${c.inssEntity}</strong>, com sede em ${c.address}, neste acto devidamente representada por <strong>${c.representative}</strong>, doravante designada por <em>Empregadora</em>.</p>
+
+          <p><strong>SEGUNDO(A) OUTORGANTE (Trabalhador/a):</strong> <strong>${emp.name}</strong>, de nacionalidade ${emp.nationality}, estado civil ${emp.maritalStatus}, nascido(a) a ${formatDatePT(emp.birthDate)}, portador(a) do Bilhete de Identidade n.º <strong>${emp.bi}</strong>, titular do NIF n.º <strong>${emp.nif}</strong> e beneficiário(a) do INSS n.º <strong>${emp.inss}</strong>, doravante designado(a) por <em>Trabalhador(a)</em>.</p>
+
+          <p>É livremente e de boa-fé celebrado o presente Contrato de Trabalho, que se rege pelas cláusulas seguintes:</p>
+
+          <div class="space-y-2.5">
+            <p><strong>CLÁUSULA 1.ª (Objecto e Categoria Profissional):</strong> O(A) Trabalhador(a) é admitido(a) ao serviço da Empregadora para desempenhar as funções inerentes à categoria de <strong>${emp.role}</strong> (Qualificador MAPTSS: ${emp.maptssCode}), integrado(a) no departamento de ${emp.department}.</p>
+
+            <p><strong>CLÁUSULA 2.ª (Local e Período Normal de Trabalho):</strong> A actividade laboral será prestada no Centro de Trabalho sito em ${c.address}, sujeita ao período normal de trabalho de <strong>${emp.weeklyHours} horas semanais</strong>, nos termos do artigo 148.º da Lei n.º 12/23.</p>
+
+            <p><strong>CLÁUSULA 3.ª (Remuneração e Prestações Complementares):</strong> Como contrapartida do trabalho prestado, a Empregadora pagará mensalmente ao(à) Trabalhador(a), por transferência bancária para o IBAN <strong>${emp.iban}</strong> (${emp.bank}), até ao último dia útil de cada mês (Art. 245.º LGT), a seguinte estrutura remuneratória ilíquida:
+              <br>• Salário-Base Mensal: <strong>${formatKz(emp.baseSalary)}</strong>;
+              <br>• Subsídio de Alimentação: <strong>${formatKz(emp.foodAllowance)}</strong>;
+              <br>• Subsídio de Transporte: <strong>${formatKz(emp.transportAllowance)}</strong>;
+              ${emp.familyAllowance > 0 ? `<br>• Abono de Família: <strong>${formatKz(emp.familyAllowance)}</strong>;` : ''}
+              ${emp.leadershipAllowance > 0 ? `<br>• Subsídio de Chefia / Isenção de Horário: <strong>${formatKz(emp.leadershipAllowance)}</strong>;` : ''}
+              <br>Sobre as referidas prestações incidirão os descontos legais obrigatórios para a Segurança Social (INSS - 3%) e Imposto sobre os Rendimentos do Trabalho (IRT).
+            </p>
+
+            <p><strong>CLÁUSULA 4.ª (Vigência e Período Experimental):</strong> O presente contrato entra em vigor no dia <strong>${formatDatePT(emp.admissionDate)}</strong>${emp.contractEndDate ? `, vigorando até <strong>${formatDatePT(emp.contractEndDate)}</strong>` : ''}, ficando sujeito a um período experimental de <strong>${emp.probationDays} dias</strong> (Art. 18.º LGT), durante o qual qualquer das partes o poderá fazer cessar sem aviso prévio nem obrigação de indemnizar.</p>
+
+            <p><strong>CLÁUSULA 5.ª (Férias e Subsídios Legais):</strong> O(A) Trabalhador(a) tem direito a 22 dias úteis de férias anuais remuneradas (Art. 204.º LGT), bem como à gratificação de férias e ao subsídio de Natal nos termos do artigo 238.º da Lei Geral do Trabalho.</p>
+          </div>
+
+          <p class="pt-4">Feito em Luanda, em duplicado, ficando um exemplar na posse de cada outorgante, aos ${formatDatePT(emp.admissionDate)}.</p>
+
+          <div class="grid grid-cols-2 gap-12 pt-10 text-center font-sans text-xs">
+            <div>
+              <div class="border-t border-slate-800 pt-2 font-bold">A ENTIDADE EMPREGADORA</div>
+              <div class="text-slate-600">${c.name}</div>
+            </div>
+            <div>
+              <div class="border-t border-slate-800 pt-2 font-bold">O(A) TRABALHADOR(A)</div>
+              <div class="text-slate-600">${emp.name}</div>
+            </div>
+          </div>
+        </div>
+      `, true);
+    }
+
+    // =========================================================================
+    // 7. MÓDULO 3: ASSIDUIDADE, HORAS EXTRAS E FALTAS
+    // =========================================================================
+    function renderAttendance(container) {
+      const activeEmps = getActiveEmployees();
+
+      container.innerHTML = `
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h2 class="text-2xl font-bold text-white tracking-tight">Assiduidade, Horas Extras & Faltas</h2>
+            <p class="text-sm text-slate-400">Apuramento mensal da efectividade (Art. 187.º, 188.º, 219.º a 230.º e 248.º da LGT).</p>
+          </div>
+          <button onclick="navigate('payroll')" class="px-4 py-2 rounded-xl gold-gradient text-obsidian font-bold text-xs shadow-lg hover:opacity-95 flex items-center gap-2 self-start">
+            <i class="fa-solid fa-arrow-right"></i> Ir para Folha de Pagamento
+          </button>
+        </div>
+
+        <!-- Regras Legais Rápidas -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+          <div class="card-surface rounded-xl p-4 border-l-4 border-l-amber-500">
+            <div class="font-bold text-white">Horas Extras (Art. 188.º LGT)</div>
+            <p class="text-slate-400 mt-1">Até 30h/mês em dia normal: <strong>+50%</strong>. Excedente &gt;30h: <strong>+75%</strong>. Descanso semanal ou feriado: <strong>+100%</strong>. Período nocturno (20h-06h): <strong>+20%</strong> (Art. 182.º).</p>
+          </div>
+          <div class="card-surface rounded-xl p-4 border-l-4 border-l-cyan-500">
+            <div class="font-bold text-white">Fórmula Salário-Hora (Art. 237.º n.º 7)</div>
+            <p class="text-slate-400 mt-1 font-mono text-[11px] text-cyan-300">S/H = (Salário Base × 12) ÷ (52 × Hs)</p>
+            <p class="text-slate-400 mt-0.5">Aplicada tanto no cálculo de extras quanto no desconto de faltas injustificadas.</p>
+          </div>
+          <div class="card-surface rounded-xl p-4 border-l-4 border-l-rose-500">
+            <div class="font-bold text-white">Faltas & Teto de Descontos</div>
+            <p class="text-slate-400 mt-1">&gt;3 faltas injustificadas no mês ou 12 no ano constituem infracção disciplinar grave (Art. 230.º). Adiantamentos limitados a <strong>25% do líquido</strong> (Art. 248.º).</p>
+          </div>
+        </div>
+
+        <!-- Tabela Editável de Efectividade -->
+        <div class="card-surface rounded-2xl overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="border-b border-slateBorder bg-obsidian/70 text-[11px] uppercase tracking-wider text-slate-400">
+                  <th class="py-3.5 px-4">Trabalhador / Valor Hora</th>
+                  <th class="py-3.5 px-3 text-center">HE +50%<br><span class="text-[10px] font-normal">(até 30h)</span></th>
+                  <th class="py-3.5 px-3 text-center">HE +75%<br><span class="text-[10px] font-normal">(&gt; 30h)</span></th>
+                  <th class="py-3.5 px-3 text-center">HE +100%<br><span class="text-[10px] font-normal">(Dom/Fer)</span></th>
+                  <th class="py-3.5 px-3 text-center">Nocturno<br><span class="text-[10px] font-normal">(+20%)</span></th>
+                  <th class="py-3.5 px-3 text-center">Faltas Just.<br><span class="text-[10px] font-normal">(Dias Rem.)</span></th>
+                  <th class="py-3.5 px-3 text-center">Faltas Injust.<br><span class="text-[10px] font-normal">(Desconta)</span></th>
+                  <th class="py-3.5 px-3 text-right">Adiantamento<br><span class="text-[10px] font-normal">(Desconto Kz)</span></th>
+                  <th class="py-3.5 px-4 text-right">Impacto Líquido</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slateBorder/60 text-sm">
+                ${activeEmps.map(emp => {
+                  const att = state.attendance[emp.id] || { ot50: 0, ot75: 0, ot100: 0, nightHours: 0, justifiedDays: 0, unjustifiedDays: 0, advanceDeduction: 0 };
+                  const calc = calculateEmployeePayroll(emp);
+                  const netImpact = calc.totalOvertimePay - calc.absenceDeduction;
+                  const disciplinaryAlert = (att.unjustifiedDays || 0) > 3;
+
+                  return `
+                    <tr class="hover:bg-slateCard/40 transition">
+                      <td class="py-3 px-4">
+                        <div class="font-semibold text-white">${emp.name}</div>
+                        <div class="text-xs font-mono text-slate-400">S/H: ${formatKz(calc.hourlyRate)} (${emp.weeklyHours}h/sem)</div>
+                        ${disciplinaryAlert ? `<span class="inline-block mt-1 px-2 py-0.5 rounded bg-rose-500/20 border border-rose-500/40 text-[10px] text-rose-300 font-semibold"><i class="fa-solid fa-gavel"></i> Justa Causa (&gt;3 faltas - Art. 282.º)</span>` : ''}
+                      </td>
+                      <td class="py-3 px-2 text-center">
+                        <input type="number" min="0" max="30" step="0.5" value="${att.ot50 || 0}" onchange="updateAttendance('${emp.id}', 'ot50', this.value)" class="input-dark w-16 px-2 py-1.5 rounded-lg text-center font-mono text-xs" />
+                      </td>
+                      <td class="py-3 px-2 text-center">
+                        <input type="number" min="0" max="50" step="0.5" value="${att.ot75 || 0}" onchange="updateAttendance('${emp.id}', 'ot75', this.value)" class="input-dark w-16 px-2 py-1.5 rounded-lg text-center font-mono text-xs" />
+                      </td>
+                      <td class="py-3 px-2 text-center">
+                        <input type="number" min="0" max="40" step="0.5" value="${att.ot100 || 0}" onchange="updateAttendance('${emp.id}', 'ot100', this.value)" class="input-dark w-16 px-2 py-1.5 rounded-lg text-center font-mono text-xs" />
+                      </td>
+                      <td class="py-3 px-2 text-center">
+                        <input type="number" min="0" max="176" step="1" value="${att.nightHours || 0}" onchange="updateAttendance('${emp.id}', 'nightHours', this.value)" class="input-dark w-16 px-2 py-1.5 rounded-lg text-center font-mono text-xs" />
+                      </td>
+                      <td class="py-3 px-2 text-center">
+                        <input type="number" min="0" max="30" step="1" value="${att.justifiedDays || 0}" onchange="updateAttendance('${emp.id}', 'justifiedDays', this.value)" class="input-dark w-16 px-2 py-1.5 rounded-lg text-center font-mono text-xs text-cyan-300" />
+                      </td>
+                      <td class="py-3 px-2 text-center">
+                        <input type="number" min="0" max="30" step="1" value="${att.unjustifiedDays || 0}" onchange="updateAttendance('${emp.id}', 'unjustifiedDays', this.value)" class="input-dark w-16 px-2 py-1.5 rounded-lg text-center font-mono text-xs text-rose-400" />
+                      </td>
+                      <td class="py-3 px-2 text-right">
+                        <input type="number" min="0" step="1000" value="${att.advanceDeduction || 0}" onchange="updateAttendance('${emp.id}', 'advanceDeduction', this.value)" class="input-dark w-28 px-2 py-1.5 rounded-lg text-right font-mono text-xs text-amber-300" />
+                        ${calc.advanceCapped ? `<div class="text-[10px] text-amber-400 mt-0.5" title="Limitado a 25% do líquido conforme Art. 248.º n.º 7">Teto 25%: ${formatKz(calc.maxLegalDeduction)}</div>` : ''}
+                      </td>
+                      <td class="py-3 px-4 text-right font-mono text-xs">
+                        <div class="${netImpact >= 0 ? 'text-emerald-400' : 'text-rose-400'} font-semibold">
+                          ${netImpact >= 0 ? '+' : ''}${formatKz(netImpact)}
+                        </div>
+                        <div class="text-[10px] text-slate-400">Extras: +${formatKz(calc.totalOvertimePay)}</div>
+                      </td>
+                    </tr>
+                  `;
+                }).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+    }
+
+    function updateAttendance(empId, field, rawVal) {
+      if (!state.attendance[empId]) {
+        state.attendance[empId] = { ot50: 0, ot75: 0, ot100: 0, nightHours: 0, justifiedDays: 0, unjustifiedDays: 0, advanceDeduction: 0, includeVacationBonus: false };
+      }
+      state.attendance[empId][field] = Math.max(0, Number(rawVal) || 0);
+      saveState();
+      renderCurrentRoute();
+      showToast('Registo de assiduidade actualizado na folha.', 'info');
+    }
+
+    // =========================================================================
+    // 8. MÓDULO 4: FOLHA DE PAGAMENTO (IRT 2026 & INSS) + EXPORTAÇÕES
+    // =========================================================================
+    function renderPayroll(container) {
+      const activeEmps = getActiveEmployees();
+      const rows = activeEmps.map(e => calculateEmployeePayroll(e));
+
+      const sumGross = rows.reduce((a, b) => a + b.grossSalary, 0);
+      const sumINSSWorker = rows.reduce((a, b) => a + b.inssWorker, 0);
+      const sumINSSEmployer = rows.reduce((a, b) => a + b.inssEmployer, 0);
+      const sumTaxable = rows.reduce((a, b) => a + b.taxableIncome, 0);
+      const sumIRT = rows.reduce((a, b) => a + b.irtTax, 0);
+      const sumAdvances = rows.reduce((a, b) => a + b.appliedAdvance, 0);
+      const sumNet = rows.reduce((a, b) => a + b.netSalary, 0);
+
+      container.innerHTML = `
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          <div>
+            <h2 class="text-2xl font-bold text-white tracking-tight">Processamento Salarial — ${state.period}</h2>
+            <p class="text-sm text-slate-400">Apuramento automático de INSS (3% / 8%), Isenções de Subsídios e IRT Progressivo (OGE 2026).</p>
+          </div>
+          
+          <!-- Botões de Exportação Oficial Angola -->
+          <div class="flex flex-wrap gap-2">
+            <button onclick="exportAGT_IRT()" class="px-3.5 py-2 rounded-xl bg-purple-950/50 hover:bg-purple-900/60 border border-purple-700/50 text-purple-200 text-xs font-semibold flex items-center gap-2 transition">
+              <i class="fa-solid fa-file-csv"></i> Mapa IRT (AGT)
+            </button>
+            <button onclick="exportINSS()" class="px-3.5 py-2 rounded-xl bg-cyan-950/50 hover:bg-cyan-900/60 border border-cyan-700/50 text-cyan-200 text-xs font-semibold flex items-center gap-2 transition">
+              <i class="fa-solid fa-file-excel"></i> Folha INSS (11%)
+            </button>
+            <button onclick="exportBankPS2()" class="px-3.5 py-2 rounded-xl gold-gradient text-obsidian text-xs font-bold flex items-center gap-2 shadow-lg shadow-amber-500/15 hover:opacity-95 transition">
+              <i class="fa-solid fa-building-columns"></i> Ficheiro Bancário PS2
+            </button>
+          </div>
+        </div>
+
+        <!-- Tabela Principal da Folha -->
+        <div class="card-surface rounded-2xl overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="border-b border-slateBorder bg-obsidian/80 text-[11px] uppercase tracking-wider text-slate-400">
+                  <th class="py-3.5 px-4">Trabalhador</th>
+                  <th class="py-3.5 px-3 text-right">Base Efectivo</th>
+                  <th class="py-3.5 px-3 text-right">Subsídios & Extras</th>
+                  <th class="py-3.5 px-3 text-right">Remun. Bruta</th>
+                  <th class="py-3.5 px-3 text-right">INSS (3%)</th>
+                  <th class="py-3.5 px-3 text-right">Matéria Coletável</th>
+                  <th class="py-3.5 px-3 text-right">IRT (2026)</th>
+                  <th class="py-3.5 px-3 text-right">Adiantam.</th>
+                  <th class="py-3.5 px-4 text-right text-emerald-400">Líquido a Pagar</th>
+                  <th class="py-3.5 px-4 text-center">Documentos</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slateBorder/60 text-xs">
+                ${rows.map(r => {
+                  const totalSubsAndExtras = r.totalOvertimePay + r.foodAllowance + r.transportAllowance + r.familyAllowance + r.leadershipAllowance + r.vacationBonusPay + r.christmasBonusPay;
+                  return `
+                    <tr class="hover:bg-slateCard/50 transition">
+                      <td class="py-3.5 px-4">
+                        <div class="font-semibold text-white text-sm">${r.emp.name}</div>
+                        <div class="text-[11px] text-slate-400">${r.emp.role} • <span class="font-mono text-slate-500">${r.emp.bank}</span></div>
+                      </td>
+                      <td class="py-3.5 px-3 text-right font-mono text-slate-200">
+                        ${formatKz(r.effectiveBaseSalary)}
+                        ${r.absenceDeduction > 0 ? `<div class="text-[10px] text-rose-400">-${formatKz(r.absenceDeduction)} faltas</div>` : ''}
+                      </td>
+                      <td class="py-3.5 px-3 text-right font-mono text-slate-300">
+                        ${formatKz(totalSubsAndExtras)}
+                        ${r.christmasBonusPay > 0 ? `<div class="text-[10px] text-amber-400">Inclui Sub. Natal</div>` : ''}
+                        ${r.vacationBonusPay > 0 ? `<div class="text-[10px] text-cyan-400">Inclui Sub. Férias</div>` : ''}
+                      </td>
+                      <td class="py-3.5 px-3 text-right font-mono font-semibold text-white">
+                        ${formatKz(r.grossSalary)}
+                      </td>
+                      <td class="py-3.5 px-3 text-right font-mono text-cyan-300">
+                        -${formatKz(r.inssWorker)}
+                        <div class="text-[10px] text-slate-500">Emp 8%: ${formatKz(r.inssEmployer)}</div>
+                      </td>
+                      <td class="py-3.5 px-3 text-right font-mono text-slate-300">
+                        ${formatKz(r.taxableIncome)}
+                        <div class="text-[10px] text-emerald-400/80">Isento: ${formatKz(r.totalExemptions)}</div>
+                      </td>
+                      <td class="py-3.5 px-3 text-right font-mono text-purple-300 font-semibold">
+                        -${formatKz(r.irtTax)}
+                        <div class="text-[10px] text-slate-500 font-normal">Esc. ${r.irtBracket.escalao} (${(r.irtBracket.taxa * 100).toFixed(1)}%)</div>
+                      </td>
+                      <td class="py-3.5 px-3 text-right font-mono text-amber-300">
+                        ${r.appliedAdvance > 0 ? `-${formatKz(r.appliedAdvance)}` : '0,00 Kz'}
+                      </td>
+                      <td class="py-3.5 px-4 text-right font-mono font-bold text-sm text-emerald-400">
+                        ${formatKz(r.netSalary)}
+                      </td>
+                      <td class="py-3.5 px-4 text-center">
+                        <div class="flex items-center justify-center gap-1.5">
+                          <button onclick="openPayrollBreakdown('${r.emp.id}')" class="p-2 rounded-lg bg-obsidian hover:bg-slate-700 border border-slateBorder text-gold-500" title="Ver Memória de Cálculo Passo-a-Passo">
+                            <i class="fa-solid fa-magnifying-glass-chart"></i>
+                          </button>
+                          <button onclick="printPayslip('${r.emp.id}')" class="p-2 rounded-lg bg-obsidian hover:bg-emerald-500/20 border border-slateBorder text-emerald-400" title="Emitir Recibo de Vencimento (Art. 247.º LGT)">
+                            <i class="fa-solid fa-receipt"></i>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  `;
+                }).join('')}
+              </tbody>
+              <tfoot>
+                <tr class="border-t-2 border-slateBorder bg-obsidian font-mono text-xs font-bold">
+                  <td class="py-4 px-4 font-sans text-white uppercase">Totais Consolidados (${rows.length})</td>
+                  <td class="py-4 px-3 text-right text-slate-300">${formatKz(rows.reduce((a, b) => a + b.effectiveBaseSalary, 0))}</td>
+                  <td class="py-4 px-3 text-right text-slate-300">${formatKz(sumGross - rows.reduce((a, b) => a + b.effectiveBaseSalary, 0))}</td>
+                  <td class="py-4 px-3 text-right text-white">${formatKz(sumGross)}</td>
+                  <td class="py-4 px-3 text-right text-cyan-400">-${formatKz(sumINSSWorker)}</td>
+                  <td class="py-4 px-3 text-right text-slate-300">${formatKz(sumTaxable)}</td>
+                  <td class="py-4 px-3 text-right text-purple-400">-${formatKz(sumIRT)}</td>
+                  <td class="py-4 px-3 text-right text-amber-400">-${formatKz(sumAdvances)}</td>
+                  <td class="py-4 px-4 text-right text-emerald-400 text-sm">${formatKz(sumNet)}</td>
+                  <td></td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+      `;
+    }
+
+    function openPayrollBreakdown(empId) {
+      const emp = state.employees.find(e => e.id === empId);
+      if (!emp) return;
+      const r = calculateEmployeePayroll(emp);
+
+      showModal(`Memória de Cálculo Fiscal — ${emp.name} (${state.period})`, `
+        <div class="space-y-5 text-sm">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <!-- Bloco Proventos -->
+            <div class="p-4 rounded-xl bg-obsidian border border-slateBorder space-y-2">
+              <h4 class="text-xs font-bold uppercase tracking-wider text-emerald-400 mb-2">1. Apuramento da Remuneração Bruta</h4>
+              <div class="flex justify-between text-xs"><span class="text-slate-400">Salário Base Contratual:</span><span class="font-mono">${formatKz(emp.baseSalary)}</span></div>
+              ${r.absenceDeduction > 0 ? `<div class="flex justify-between text-xs text-rose-400"><span>(-) Faltas Injustificadas:</span><span class="font-mono">-${formatKz(r.absenceDeduction)}</span></div>` : ''}
+              <div class="flex justify-between text-xs"><span class="text-slate-400">Horas Extras & Nocturno:</span><span class="font-mono">${formatKz(r.totalOvertimePay)}</span></div>
+              <div class="flex justify-between text-xs"><span class="text-slate-400">Subsídio de Alimentação:</span><span class="font-mono">${formatKz(r.foodAllowance)}</span></div>
+              <div class="flex justify-between text-xs"><span class="text-slate-400">Subsídio de Transporte:</span><span class="font-mono">${formatKz(r.transportAllowance)}</span></div>
+              <div class="flex justify-between text-xs"><span class="text-slate-400">Abono de Família:</span><span class="font-mono">${formatKz(r.familyAllowance)}</span></div>
+              <div class="flex justify-between text-xs"><span class="text-slate-400">Subsídio Chefia / Isenção:</span><span class="font-mono">${formatKz(r.leadershipAllowance)}</span></div>
+              ${r.vacationBonusPay > 0 ? `<div class="flex justify-between text-xs text-cyan-300"><span>Gratificação de Férias:</span><span class="font-mono">${formatKz(r.vacationBonusPay)}</span></div>` : ''}
+              ${r.christmasBonusPay > 0 ? `<div class="flex justify-between text-xs text-amber-300"><span>Subsídio de Natal (13.º):</span><span class="font-mono">${formatKz(r.christmasBonusPay)}</span></div>` : ''}
+              <div class="pt-2 border-t border-slateBorder flex justify-between font-bold text-white">
+                <span>Total Bruto (Base INSS):</span>
+                <span class="font-mono">${formatKz(r.grossSalary)}</span>
+              </div>
+            </div>
+
+            <!-- Bloco Base IRT -->
+            <div class="p-4 rounded-xl bg-obsidian border border-slateBorder space-y-2">
+              <h4 class="text-xs font-bold uppercase tracking-wider text-purple-400 mb-2">2. Apuramento da Matéria Coletável (IRT)</h4>
+              <div class="flex justify-between text-xs"><span class="text-slate-400">Remuneração Bruta Total:</span><span class="font-mono">${formatKz(r.grossSalary)}</span></div>
+              <div class="flex justify-between text-xs text-cyan-300"><span>(-) INSS Trabalhador (3%):</span><span class="font-mono">-${formatKz(r.inssWorker)}</span></div>
+              <div class="flex justify-between text-xs text-emerald-400"><span>(-) Isenção Sub. Alimentação (até 30k):</span><span class="font-mono">-${formatKz(r.exemptFood)}</span></div>
+              <div class="flex justify-between text-xs text-emerald-400"><span>(-) Isenção Sub. Transporte (até 30k):</span><span class="font-mono">-${formatKz(r.exemptTransport)}</span></div>
+              <div class="flex justify-between text-xs text-emerald-400"><span>(-) Isenção Abono Família (até 5%):</span><span class="font-mono">-${formatKz(r.exemptFamily)}</span></div>
+              <div class="pt-2 border-t border-slateBorder flex justify-between font-bold text-amber-400">
+                <span>Matéria Coletável IRT:</span>
+                <span class="font-mono">${formatKz(r.taxableIncome)}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bloco Fórmula IRT 2026 -->
+          <div class="p-4 rounded-xl bg-purple-950/20 border border-purple-700/40 space-y-2">
+            <h4 class="text-xs font-bold uppercase tracking-wider text-purple-300">3. Aplicação da Tabela Progressiva IRT 2026 (OGE 2026)</h4>
+            ${r.irtBracket.taxa === 0 ? `
+              <p class="text-xs text-slate-300">Matéria coletável até 150.000,00 Kz encontra-se <strong>ISENTA</strong> de IRT (1.º Escalão).</p>
+            ` : `
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs font-mono">
+                <div class="p-2.5 rounded-lg bg-obsidian/80">
+                  <span class="text-slate-400 block font-sans">Enquadramento</span>
+                  <span class="text-white font-bold">${r.irtBracket.escalao}.º Escalão (${(r.irtBracket.taxa * 100).toFixed(1)}%)</span>
+                </div>
+                <div class="p-2.5 rounded-lg bg-obsidian/80">
+                  <span class="text-slate-400 block font-sans">Excesso s/ ${formatKz(r.irtBracket.excesso)}</span>
+                  <span class="text-purple-300 font-bold">${formatKz(r.irtExcess)}</span>
+                </div>
+                <div class="p-2.5 rounded-lg bg-obsidian/80">
+                  <span class="text-slate-400 block font-sans">Parcela Fixa + Taxa</span>
+                  <span class="text-purple-300 font-bold">${formatKz(r.irtBracket.fixa)} + ${(r.irtBracket.taxa * 100).toFixed(1)}% = ${formatKz(r.irtTax)}</span>
+                </div>
+              </div>
+            `}
+          </div>
+
+          <!-- Resumo Líquido e Encargo Empresa -->
+          <div class="p-4 rounded-xl bg-emerald-950/20 border border-emerald-700/40 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div>
+              <div class="text-xs text-slate-400">Encargo Patronal INSS (8% empresa): <strong class="font-mono text-cyan-300">${formatKz(r.inssEmployer)}</strong></div>
+              <div class="text-xs text-slate-400 mt-0.5">Custo Total do Posto de Trabalho: <strong class="font-mono text-white">${formatKz(r.grossSalary + r.inssEmployer)}</strong></div>
+            </div>
+            <div class="text-right">
+              <span class="text-xs text-emerald-300 uppercase font-semibold block">Salário Líquido a Transferir</span>
+              <span class="text-2xl font-bold font-mono text-emerald-400">${formatKz(r.netSalary)}</span>
+            </div>
+          </div>
+        </div>
+      `);
+    }
+
+    function printPayslip(empId) {
+      const emp = state.employees.find(e => e.id === empId);
+      if (!emp) return;
+      const r = calculateEmployeePayroll(emp);
+      const c = state.company;
+
+      showModal(`Recibo de Vencimento — ${emp.name}`, `
+        <div id="print-area" class="bg-white text-slate-900 p-6 rounded-xl font-sans text-xs space-y-4">
+          <!-- Cabeçalho Empresa -->
+          <div class="flex justify-between items-start border-b-2 border-slate-800 pb-4">
+            <div>
+              <h2 class="text-base font-bold uppercase text-slate-900">${c.name}</h2>
+              <p class="text-slate-600">${c.address}</p>
+              <p class="font-mono mt-1">NIF Empregador: <strong>${c.nif}</strong> | N.º INSS Entidade: <strong>${c.inssEntity}</strong></p>
+            </div>
+            <div class="text-right">
+              <div class="px-3 py-1 bg-slate-900 text-white font-bold uppercase tracking-wider text-xs rounded">Recibo de Vencimento</div>
+              <p class="font-mono mt-1.5">Período: <strong>${state.period}</strong></p>
+              <p class="text-[11px] text-slate-500">Art. 247.º da LGT (Lei n.º 12/23)</p>
+            </div>
+          </div>
+
+          <!-- Dados do Trabalhador -->
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 p-3 bg-slate-100 rounded-lg border border-slate-300">
+            <div><span class="text-slate-500 block text-[10px] uppercase">Nome Completo</span><strong>${emp.name}</strong></div>
+            <div><span class="text-slate-500 block text-[10px] uppercase">Categoria / Cargo</span><strong>${emp.role}</strong></div>
+            <div><span class="text-slate-500 block text-[10px] uppercase">N.º Beneficiário INSS</span><strong class="font-mono">${emp.inss}</strong></div>
+            <div><span class="text-slate-500 block text-[10px] uppercase">NIF Trabalhador</span><strong class="font-mono">${emp.nif}</strong></div>
+            <div><span class="text-slate-500 block text-[10px] uppercase">BI / Identificação</span><strong class="font-mono">${emp.bi}</strong></div>
+            <div><span class="text-slate-500 block text-[10px] uppercase">IBAN (${emp.bank})</span><strong class="font-mono text-[11px]">${emp.iban}</strong></div>
+          </div>
+
+          <!-- Tabela Discriminativa de Abonos e Descontos -->
+          <table class="w-full border-collapse border border-slate-300">
+            <thead>
+              <tr class="bg-slate-200 text-slate-800 uppercase text-[10px]">
+                <th class="border border-slate-300 p-2 text-left">Cód.</th>
+                <th class="border border-slate-300 p-2 text-left">Descrição da Rubrica</th>
+                <th class="border border-slate-300 p-2 text-right">Abonos (Kz)</th>
+                <th class="border border-slate-300 p-2 text-right">Descontos (Kz)</th>
+              </tr>
+            </thead>
+            <tbody class="font-mono text-[11px]">
+              <tr>
+                <td class="border border-slate-300 p-2">001</td>
+                <td class="border border-slate-300 p-2 font-sans">Salário Base Mensal</td>
+                <td class="border border-slate-300 p-2 text-right">${formatKz(emp.baseSalary)}</td>
+                <td class="border border-slate-300 p-2 text-right"></td>
+              </tr>
+              ${r.absenceDeduction > 0 ? `
+                <tr>
+                  <td class="border border-slate-300 p-2">015</td>
+                  <td class="border border-slate-300 p-2 font-sans">Desconto Faltas Injustificadas (${r.att.unjustifiedDays} dia(s) - Art. 240.º)</td>
+                  <td class="border border-slate-300 p-2 text-right"></td>
+                  <td class="border border-slate-300 p-2 text-right">${formatKz(r.absenceDeduction)}</td>
+                </tr>
+              ` : ''}
+              ${r.totalOvertimePay > 0 ? `
+                <tr>
+                  <td class="border border-slate-300 p-2">020</td>
+                  <td class="border border-slate-300 p-2 font-sans">Trabalho Extraordinário e Adicional Nocturno (Art. 188.º)</td>
+                  <td class="border border-slate-300 p-2 text-right">${formatKz(r.totalOvertimePay)}</td>
+                  <td class="border border-slate-300 p-2 text-right"></td>
+                </tr>
+              ` : ''}
+              ${r.foodAllowance > 0 ? `
+                <tr>
+                  <td class="border border-slate-300 p-2">031</td>
+                  <td class="border border-slate-300 p-2 font-sans">Subsídio de Alimentação</td>
+                  <td class="border border-slate-300 p-2 text-right">${formatKz(r.foodAllowance)}</td>
+                  <td class="border border-slate-300 p-2 text-right"></td>
+                </tr>
+              ` : ''}
+              ${r.transportAllowance > 0 ? `
+                <tr>
+                  <td class="border border-slate-300 p-2">032</td>
+                  <td class="border border-slate-300 p-2 font-sans">Subsídio de Transporte</td>
+                  <td class="border border-slate-300 p-2 text-right">${formatKz(r.transportAllowance)}</td>
+                  <td class="border border-slate-300 p-2 text-right"></td>
+                </tr>
+              ` : ''}
+              ${r.familyAllowance > 0 ? `
+                <tr>
+                  <td class="border border-slate-300 p-2">035</td>
+                  <td class="border border-slate-300 p-2 font-sans">Abono de Família</td>
+                  <td class="border border-slate-300 p-2 text-right">${formatKz(r.familyAllowance)}</td>
+                  <td class="border border-slate-300 p-2 text-right"></td>
+                </tr>
+              ` : ''}
+              ${r.leadershipAllowance > 0 ? `
+                <tr>
+                  <td class="border border-slate-300 p-2">040</td>
+                  <td class="border border-slate-300 p-2 font-sans">Subsídio de Chefia / Isenção de Horário</td>
+                  <td class="border border-slate-300 p-2 text-right">${formatKz(r.leadershipAllowance)}</td>
+                  <td class="border border-slate-300 p-2 text-right"></td>
+                </tr>
+              ` : ''}
+              ${r.vacationBonusPay > 0 ? `
+                <tr>
+                  <td class="border border-slate-300 p-2">050</td>
+                  <td class="border border-slate-300 p-2 font-sans">Gratificação de Férias (Art. 238.º LGT)</td>
+                  <td class="border border-slate-300 p-2 text-right">${formatKz(r.vacationBonusPay)}</td>
+                  <td class="border border-slate-300 p-2 text-right"></td>
+                </tr>
+              ` : ''}
+              ${r.christmasBonusPay > 0 ? `
+                <tr>
+                  <td class="border border-slate-300 p-2">051</td>
+                  <td class="border border-slate-300 p-2 font-sans">Subsídio de Natal / 13.º Mês (Art. 238.º LGT)</td>
+                  <td class="border border-slate-300 p-2 text-right">${formatKz(r.christmasBonusPay)}</td>
+                  <td class="border border-slate-300 p-2 text-right"></td>
+                </tr>
+              ` : ''}
+              <tr>
+                <td class="border border-slate-300 p-2">901</td>
+                <td class="border border-slate-300 p-2 font-sans">Segurança Social — INSS (3% s/ Remuneração Bruta)</td>
+                <td class="border border-slate-300 p-2 text-right"></td>
+                <td class="border border-slate-300 p-2 text-right">${formatKz(r.inssWorker)}</td>
+              </tr>
+              <tr>
+                <td class="border border-slate-300 p-2">902</td>
+                <td class="border border-slate-300 p-2 font-sans">Imposto s/ Rendimentos do Trabalho — IRT (Tabela 2026)</td>
+                <td class="border border-slate-300 p-2 text-right"></td>
+                <td class="border border-slate-300 p-2 text-right">${formatKz(r.irtTax)}</td>
+              </tr>
+              ${r.appliedAdvance > 0 ? `
+                <tr>
+                  <td class="border border-slate-300 p-2">910</td>
+                  <td class="border border-slate-300 p-2 font-sans">Dedução de Adiantamento Salarial (Art. 248.º)</td>
+                  <td class="border border-slate-300 p-2 text-right"></td>
+                  <td class="border border-slate-300 p-2 text-right">${formatKz(r.appliedAdvance)}</td>
+                </tr>
+              ` : ''}
+            </tbody>
+            <tfoot>
+              <tr class="bg-slate-100 font-bold font-mono">
+                <td colspan="2" class="border border-slate-300 p-2 text-right font-sans uppercase">Totais:</td>
+                <td class="border border-slate-300 p-2 text-right">${formatKz(r.grossSalary + r.absenceDeduction)}</td>
+                <td class="border border-slate-300 p-2 text-right">${formatKz(r.totalDeductions + r.absenceDeduction)}</td>
+              </tr>
+              <tr class="bg-slate-900 text-white font-bold font-mono text-sm">
+                <td colspan="2" class="border border-slate-900 p-2.5 text-right font-sans uppercase">Valor Líquido a Receber (AOA):</td>
+                <td colspan="2" class="border border-slate-900 p-2.5 text-right">${formatKz(r.netSalary)}</td>
+              </tr>
+            </tfoot>
+          </table>
+
+          <div class="flex justify-between items-end pt-6 text-[11px] text-slate-600">
+            <div>
+              <p>Matéria Coletável IRT: <strong class="font-mono">${formatKz(r.taxableIncome)}</strong> | Isenções: <strong class="font-mono">${formatKz(r.totalExemptions)}</strong></p>
+              <p class="mt-1">Processado por <strong>KwanzaRH Pro</strong> • Em conformidade com a Lei n.º 12/23.</p>
+            </div>
+            <div class="w-56 text-center">
+              <div class="border-t border-slate-800 pt-1 font-semibold text-slate-800">Assinatura do(a) Trabalhador(a)</div>
+            </div>
+          </div>
+        </div>
+      `, true);
+    }
+
+    // Exportações Oficiais (CSV / TXT PS2)
+    function triggerDownload(filename, content, mime = 'text/plain;charset=utf-8') {
+      const blob = new Blob([content], { type: mime });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    function exportAGT_IRT() {
+      const rows = getActiveEmployees().map(e => calculateEmployeePayroll(e));
+      let csv = 'NIF_TRABALHADOR;NOME_COMPLETO;REMUNERACAO_BRUTA_AOA;SUBSIDIOS_ISENTOS_AOA;INSS_3PCT_AOA;MATERIA_COLECTAVEL_AOA;IRT_RETIDO_AOA\n';
+      rows.forEach(r => {
+        csv += `${r.emp.nif};"${r.emp.name}";${r.grossSalary.toFixed(2)};${r.totalExemptions.toFixed(2)};${r.inssWorker.toFixed(2)};${r.taxableIncome.toFixed(2)};${r.irtTax.toFixed(2)}\n`;
+      });
+      triggerDownload(`Mapa_IRT_AGT_${state.company.nif}_${state.period}.csv`, '\uFEFF' + csv, 'text/csv;charset=utf-8');
+      showToast('Mapa de Retenção de IRT (AGT) exportado em CSV!', 'success');
+    }
+
+    function exportINSS() {
+      const rows = getActiveEmployees().map(e => calculateEmployeePayroll(e));
+      let csv = 'N_BENEFICIARIO_INSS;NOME_COMPLETO;CATEGORIA;REMUNERACAO_ILÍQUIDA_AOA;QUOTA_TRABALHADOR_3PCT;QUOTA_PATRONAL_8PCT;TOTAL_CONTRIBUICAO_11PCT\n';
+      rows.forEach(r => {
+        const tot = r.inssWorker + r.inssEmployer;
+        csv += `${r.emp.inss};"${r.emp.name}";"${r.emp.role}";${r.grossSalary.toFixed(2)};${r.inssWorker.toFixed(2)};${r.inssEmployer.toFixed(2)};${tot.toFixed(2)}\n`;
+      });
+      triggerDownload(`Folha_Remuneracoes_INSS_${state.company.inssEntity}_${state.period}.csv`, '\uFEFF' + csv, 'text/csv;charset=utf-8');
+      showToast('Folha de Remunerações do INSS (3% + 8%) exportada!', 'success');
+    }
+
+    function exportBankPS2() {
+      const rows = getActiveEmployees().map(e => calculateEmployeePayroll(e));
+      const totalNet = rows.reduce((a, b) => a + b.netSalary, 0);
+      let txt = `PS2|HEADER|${state.company.nif}|${state.company.name.toUpperCase()}|${state.period}|AOA|${rows.length}|${totalNet.toFixed(2)}\n`;
+      rows.forEach((r, idx) => {
+        txt += `PS2|DETAIL|${String(idx + 1).padStart(4, '0')}|${r.emp.iban}|${r.emp.bank}|${r.emp.name.toUpperCase()}|${r.netSalary.toFixed(2)}|SALARIO ${state.period}\n`;
+      });
+      txt += `PS2|TRAILER|${rows.length}|${totalNet.toFixed(2)}\n`;
+      triggerDownload(`Remessa_Salarial_PS2_EMIS_${state.period}.txt`, txt);
+      showToast('Ficheiro Interbancário PS2 (EMIS Angola) gerado para transferência!', 'success');
+    }
+
+    // =========================================================================
+    // 9. MÓDULO 5: FÉRIAS E SUBSÍDIOS LEGAIS (ART. 201.º A 215.º & 238.º LGT)
+    // =========================================================================
+    function renderVacations(container) {
+      const activeEmps = getActiveEmployees();
+
+      container.innerHTML = `
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h2 class="text-2xl font-bold text-white tracking-tight">Mapa de Férias & Subsídios Legais</h2>
+            <p class="text-sm text-slate-400">Plano anual (afixação até 31 de Janeiro - Art. 206.º), Gratificação de Férias e Subsídio de Natal (Art. 238.º).</p>
+          </div>
+          <button onclick="openScheduleVacationModal()" class="px-4 py-2.5 rounded-xl gold-gradient text-obsidian font-bold text-xs shadow-lg hover:opacity-95 flex items-center gap-2 self-start">
+            <i class="fa-solid fa-calendar-plus"></i> Marcar Férias
+          </button>
+        </div>
+
+        <!-- Quadro de Direitos Adquiridos por Trabalhador -->
+        <div class="card-surface rounded-2xl overflow-hidden">
+          <div class="p-4 border-b border-slateBorder bg-obsidian/50 flex items-center justify-between">
+            <h3 class="font-bold text-sm text-white">Controlo Individual de Dias Úteis e Subsídios Anuais (Ano 2026)</h3>
+            <span class="text-xs text-slate-400">Regra: 22 dias úteis/ano (Art. 204.º) • Pagamento até 15 dias antes (Art. 213.º)</span>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr class="border-b border-slateBorder bg-obsidian/80 text-[11px] uppercase tracking-wider text-slate-400">
+                  <th class="py-3.5 px-4">Trabalhador</th>
+                  <th class="py-3.5 px-3 text-center">Direito Adquirido</th>
+                  <th class="py-3.5 px-3 text-center">Dias Gozados</th>
+                  <th class="py-3.5 px-3 text-center">Saldo Disponível</th>
+                  <th class="py-3.5 px-3 text-right">Gratif. Férias (${(state.params.vacationBonusPct * 100).toFixed(0)}%)</th>
+                  <th class="py-3.5 px-3 text-right">Sub. Natal Prop. (${(state.params.christmasBonusPct * 100).toFixed(0)}%)</th>
+                  <th class="py-3.5 px-4 text-center">Incluir na Folha (${state.period})</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slateBorder/60">
+                ${activeEmps.map(emp => {
+                  const entitled = getEntitledVacationDays(emp);
+                  const taken = emp.vacationDaysTaken || 0;
+                  const balance = Math.max(0, entitled - taken);
+                  const vacBonus = emp.baseSalary * state.params.vacationBonusPct;
+                  const months2026 = getMonthsWorkedInYear(emp.admissionDate, 2026);
+                  const xmasBonus = ((emp.baseSalary * state.params.christmasBonusPct) / 12) * months2026;
+                  const includedInPayroll = Boolean(state.attendance[emp.id]?.includeVacationBonus);
+
+                  return `
+                    <tr class="hover:bg-slateCard/40 transition">
+                      <td class="py-3.5 px-4">
+                        <div class="font-semibold text-white text-sm">${emp.name}</div>
+                        <div class="text-[11px] text-slate-400">Admissão: ${formatDatePT(emp.admissionDate)} (${months2026}/12 meses em 2026)</div>
+                      </td>
+                      <td class="py-3.5 px-3 text-center font-mono font-bold text-slate-200">${entitled} dias</td>
+                      <td class="py-3.5 px-3 text-center font-mono text-slate-400">${taken} dias</td>
+                      <td class="py-3.5 px-3 text-center">
+                        <span class="px-2.5 py-1 rounded-full font-mono font-bold ${balance > 0 ? 'bg-blue-500/15 text-blue-300 border border-blue-500/30' : 'bg-slate-800 text-slate-400'}">
+                          ${balance} dias úteis
+                        </span>
+                      </td>
+                      <td class="py-3.5 px-3 text-right font-mono text-cyan-300 font-semibold">${formatKz(vacBonus)}</td>
+                      <td class="py-3.5 px-3 text-right font-mono text-amber-300 font-semibold">${formatKz(xmasBonus)}</td>
+                      <td class="py-3.5 px-4 text-center">
+                        <label class="inline-flex items-center gap-2 cursor-pointer">
+                          <input type="checkbox" ${includedInPayroll ? 'checked' : ''} onchange="toggleVacationBonusInPayroll('${emp.id}', this.checked)" class="w-4 h-4 accent-amber-500 rounded cursor-pointer" />
+                          <span class="text-[11px] text-slate-300">Pagar Gratif.</span>
+                        </label>
+                      </td>
+                    </tr>
+                  `;
+                }).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Registos de Períodos Marcados -->
+        <div class="card-surface rounded-2xl p-6">
+          <h3 class="font-bold text-white mb-4">Histórico & Agendamentos de Gozo de Férias</h3>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            ${state.vacations.map(v => {
+              const emp = state.employees.find(e => e.id === v.empId);
+              if (!emp) return '';
+              return `
+                <div class="p-4 rounded-xl bg-obsidian border border-slateBorder flex flex-col justify-between gap-3">
+                  <div>
+                    <div class="flex items-center justify-between">
+                      <span class="text-xs font-bold text-white">${emp.name}</span>
+                      <span class="text-[10px] px-2 py-0.5 rounded-full ${v.status === 'Gozadas' ? 'bg-emerald-500/15 text-emerald-400' : 'bg-amber-500/15 text-amber-400'} font-semibold">${v.status}</span>
+                    </div>
+                    <p class="text-xs text-slate-400 mt-1">${emp.role}</p>
+                    <div class="mt-3 p-2.5 rounded-lg bg-slateCard/60 text-xs font-mono flex justify-between">
+                      <span>${formatDatePT(v.startDate)} → ${formatDatePT(v.endDate)}</span>
+                      <strong class="text-amber-400">${v.businessDays} d.u.</strong>
+                    </div>
+                  </div>
+                  <div class="flex justify-between items-center text-[11px] text-slate-400 pt-2 border-t border-slateBorder/50">
+                    <span>Gratif.: ${formatKz(emp.baseSalary * state.params.vacationBonusPct)}</span>
+                    ${v.status === 'Agendadas' ? `<button onclick="markVacationCompleted('${v.id}')" class="text-emerald-400 hover:underline font-semibold">Concluir Gozo</button>` : '<span><i class="fa-solid fa-check text-emerald-400"></i> Concluído</span>'}
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    function toggleVacationBonusInPayroll(empId, checked) {
+      if (!state.attendance[empId]) {
+        state.attendance[empId] = { ot50: 0, ot75: 0, ot100: 0, nightHours: 0, justifiedDays: 0, unjustifiedDays: 0, advanceDeduction: 0, includeVacationBonus: false };
+      }
+      state.attendance[empId].includeVacationBonus = checked;
+      saveState();
+      showToast(checked ? 'Gratificação de Férias incluída no processamento salarial!' : 'Gratificação de Férias removida da folha.', 'info');
+    }
+
+    function openScheduleVacationModal() {
+      const activeEmps = getActiveEmployees();
+      showModal('Marcar Período de Férias (Art. 206.º LGT)', `
+        <form onsubmit="saveVacationSchedule(event)" class="space-y-4 text-sm">
+          <div>
+            <label class="block text-xs text-slate-400 mb-1">Trabalhador *</label>
+            <select name="empId" required class="input-dark w-full px-3 py-2 rounded-xl">
+              ${activeEmps.map(e => {
+                const bal = Math.max(0, getEntitledVacationDays(e) - (e.vacationDaysTaken || 0));
+                return `<option value="${e.id}">${e.name} (Saldo: ${bal} dias úteis)</option>`;
+              }).join('')}
+            </select>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div>
+              <label class="block text-xs text-slate-400 mb-1">Data de Início *</label>
+              <input type="date" name="startDate" required value="2026-12-01" class="input-dark w-full px-3 py-2 rounded-xl" />
+            </div>
+            <div>
+              <label class="block text-xs text-slate-400 mb-1">Data de Regresso *</label>
+              <input type="date" name="endDate" required value="2026-12-15" class="input-dark w-full px-3 py-2 rounded-xl" />
+            </div>
+            <div>
+              <label class="block text-xs text-slate-400 mb-1">Dias Úteis a Descontar *</label>
+              <input type="number" name="businessDays" required min="1" max="22" value="10" class="input-dark w-full px-3 py-2 rounded-xl font-mono" />
+            </div>
+          </div>
+          <div class="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-xs text-amber-200">
+            <i class="fa-solid fa-circle-info mr-1"></i> Nota Legal (Art. 213.º n.º 3 LGT): A remuneração e a gratificação de férias devem ser pagas até <strong>15 dias antes</strong> do início do respectivo gozo.
+          </div>
+          <div class="flex justify-end gap-3 pt-2">
+            <button type="button" onclick="closeModal()" class="px-4 py-2 rounded-xl bg-slateCard text-slate-300">Cancelar</button>
+            <button type="submit" class="px-5 py-2 rounded-xl gold-gradient text-obsidian font-bold">Confirmar Marcação</button>
+          </div>
+        </form>
+      `);
+    }
+
+    function saveVacationSchedule(event) {
+      event.preventDefault();
+      const fd = new FormData(event.target);
+      const empId = fd.get('empId');
+      const businessDays = Number(fd.get('businessDays'));
+
+      state.vacations.push({
+        id: 'VAC-' + Date.now(),
+        empId,
+        startDate: fd.get('startDate'),
+        endDate: fd.get('endDate'),
+        businessDays,
+        bonusPaid: false,
+        status: 'Agendadas'
+      });
+
+      const emp = state.employees.find(e => e.id === empId);
+      if (emp) {
+        emp.vacationDaysTaken = (emp.vacationDaysTaken || 0) + businessDays;
+      }
+
+      saveState();
+      closeModal();
+      renderCurrentRoute();
+      showToast('Período de férias registado no Mapa Anual!', 'success');
+    }
+
+    function markVacationCompleted(vacId) {
+      const v = state.vacations.find(item => item.id === vacId);
+      if (v) {
+        v.status = 'Gozadas';
+        saveState();
+        renderCurrentRoute();
+        showToast('Férias marcadas como gozadas.', 'success');
+      }
+    }
+
+    // =========================================================================
+    // 10. MÓDULO 6: RESCISÃO E CONTAS FINAIS (ART. 274.º A 311.º LGT)
+    // =========================================================================
+    let termFormState = {
+      empId: 'EMP-005',
+      exitDate: '2026-11-30',
+      reason: 'OBJETIVA_ECONOMICA',
+      unfulfilledNoticeDays: 0
+    };
+
+    function renderTermination(container) {
+      const activeEmps = getActiveEmployees();
+      if (!activeEmps.find(e => e.id === termFormState.empId) && activeEmps.length > 0) {
+        termFormState.empId = activeEmps[0].id;
+      }
+
+      const emp = state.employees.find(e => e.id === termFormState.empId);
+      const settlement = emp ? calculateFinalSettlement(emp, termFormState.exitDate, termFormState.reason, termFormState.unfulfilledNoticeDays) : null;
+
+      container.innerHTML = `
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h2 class="text-2xl font-bold text-white tracking-tight">Rescisão & Contas Finais (LGT Lei n.º 12/23)</h2>
+            <p class="text-sm text-slate-400">Simulador e processador de cessação contratual (Art. 274.º a 311.º) — Pagamento obrigatório em até 3 dias (Art. 245.º n.º 4).</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          
+          <!-- Painel de Configuração da Rescisão -->
+          <div class="lg:col-span-5 card-surface rounded-2xl p-6 space-y-4">
+            <h3 class="font-bold text-white border-b border-slateBorder pb-3">Parâmetros do Desligamento</h3>
+
+            <div>
+              <label class="block text-xs text-slate-400 mb-1">Seleccionar Trabalhador</label>
+              <select onchange="termFormState.empId = this.value; renderCurrentRoute()" class="input-dark w-full px-3 py-2.5 rounded-xl text-sm">
+                ${activeEmps.map(e => `<option value="${e.id}" ${e.id === termFormState.empId ? 'selected' : ''}>${e.name} — ${e.role}</option>`).join('')}
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-xs text-slate-400 mb-1">Data Efectiva da Cessação</label>
+              <input type="date" value="${termFormState.exitDate}" onchange="termFormState.exitDate = this.value; renderCurrentRoute()" class="input-dark w-full px-3 py-2.5 rounded-xl text-sm" />
+            </div>
+
+            <div>
+              <label class="block text-xs text-slate-400 mb-1">Motivo Legal da Cessação (Cap. X LGT)</label>
+              <select onchange="termFormState.reason = this.value; renderCurrentRoute()" class="input-dark w-full px-3 py-2.5 rounded-xl text-sm">
+                <option value="PERIODO_EXPERIMENTAL" ${termFormState.reason === 'PERIODO_EXPERIMENTAL' ? 'selected' : ''}>1. Cessação no Período Experimental (Art. 18.º)</option>
+                <option value="DEMISSAO_TRABALHADOR" ${termFormState.reason === 'DEMISSAO_TRABALHADOR' ? 'selected' : ''}>2. Denúncia / Demissão pelo Trabalhador (Art. 305.º)</option>
+                <option value="JUSTA_CAUSA_DISCIPLINAR" ${termFormState.reason === 'JUSTA_CAUSA_DISCIPLINAR' ? 'selected' : ''}>3. Despedimento Justa Causa Disciplinar (Art. 282.º)</option>
+                <option value="OBJETIVA_ECONOMICA" ${termFormState.reason === 'OBJETIVA_ECONOMICA' ? 'selected' : ''}>4. Despedimento Causas Objectivas/Económicas (Art. 284.º e 308.º)</option>
+                <option value="ILICITO_INDIRETO" ${termFormState.reason === 'ILICITO_INDIRETO' ? 'selected' : ''}>5. Despedimento Ilícito ou Indirecto (Art. 303.º e 310.º)</option>
+                <option value="INSOLVENCIA_EXTINCAO" ${termFormState.reason === 'INSOLVENCIA_EXTINCAO' ? 'selected' : ''}>6. Caducidade por Insolvência/Extinção Empresa (Art. 307.º)</option>
+                <option value="MUTUO_ACORDO" ${termFormState.reason === 'MUTUO_ACORDO' ? 'selected' : ''}>7. Revogação por Mútuo Acordo (Art. 280.º)</option>
+              </select>
+            </div>
+
+            ${termFormState.reason === 'DEMISSAO_TRABALHADOR' ? `
+              <div class="p-3 rounded-xl bg-amber-950/30 border border-amber-700/40">
+                <label class="block text-xs text-amber-300 font-semibold mb-1">Dias de Aviso Prévio NÃO Cumpridos (Art. 305.º - Máx. 30 dias)</label>
+                <input type="number" min="0" max="30" value="${termFormState.unfulfilledNoticeDays}" onchange="termFormState.unfulfilledNoticeDays = Number(this.value) || 0; renderCurrentRoute()" class="input-dark w-full px-3 py-2 rounded-lg font-mono text-sm" />
+                <p class="text-[11px] text-slate-400 mt-1">A falta total ou parcial do aviso prévio de 30 dias obriga o trabalhador a compensar o empregador.</p>
+              </div>
+            ` : ''}
+
+            ${settlement ? `
+              <div class="p-4 rounded-xl bg-obsidian border border-slateBorder space-y-2 text-xs">
+                <div class="font-bold text-gold-500 uppercase">Apuramento de Antiguidade (Art. 311.º LGT)</div>
+                <div class="flex justify-between"><span class="text-slate-400">Admissão:</span><span class="font-mono text-white">${formatDatePT(emp.admissionDate)}</span></div>
+                <div class="flex justify-between"><span class="text-slate-400">Tempo Efectivo:</span><span class="font-mono text-white">${settlement.seniority.years} ano(s) e ${settlement.seniority.remMonths} mês(es)</span></div>
+                <div class="flex justify-between"><span class="text-slate-400">Anos p/ Indemnização (fração ≥ 3m = 1 ano):</span><span class="font-mono font-bold text-amber-400">${settlement.seniority.roundedYearsLGT} ano(s)</span></div>
+              </div>
+            ` : ''}
+          </div>
+
+          <!-- Demonstrativo de Contas Finais -->
+          <div class="lg:col-span-7 card-surface rounded-2xl p-6 flex flex-col justify-between">
+            ${settlement ? `
+              <div>
+                <div class="flex items-center justify-between border-b border-slateBorder pb-3 mb-4">
+                  <div>
+                    <h3 class="font-bold text-white">Demonstrativo de Contas Finais</h3>
+                    <p class="text-xs text-slate-400">${settlement.legalBasisNote}</p>
+                  </div>
+                  <span class="px-2.5 py-1 rounded-lg bg-amber-500/15 text-amber-400 font-mono text-xs font-bold">AOA (Kz)</span>
+                </div>
+
+                <div class="space-y-2.5 text-xs">
+                  <div class="flex justify-between py-1.5 border-b border-slateBorder/40">
+                    <span class="text-slate-300">1. Saldo de Salário Proporcional (${settlement.workedDaysInExitMonth} dias no mês de saída):</span>
+                    <span class="font-mono font-semibold text-white">${formatKz(settlement.proRataSalary)}</span>
+                  </div>
+                  <div class="flex justify-between py-1.5 border-b border-slateBorder/40">
+                    <span class="text-slate-300">2. Férias Vencidas e Não Gozadas (${settlement.unusedVestedDays} dias úteis - Art. 212.º n.º 1):</span>
+                    <span class="font-mono font-semibold text-white">${formatKz(settlement.vestedVacationPay)}</span>
+                  </div>
+                  <div class="flex justify-between py-1.5 border-b border-slateBorder/40">
+                    <span class="text-slate-300">3. Férias Proporcionais Ano Corrente (${settlement.proportionalVacationDays} dias úteis - Art. 212.º n.º 2):</span>
+                    <span class="font-mono font-semibold text-white">${formatKz(settlement.proportionalVacationPay)}</span>
+                  </div>
+                  <div class="flex justify-between py-1.5 border-b border-slateBorder/40">
+                    <span class="text-slate-300">4. Gratificação de Férias Proporcional (Art. 238.º n.º 3):</span>
+                    <span class="font-mono font-semibold text-white">${formatKz(settlement.proportionalVacationBonus)}</span>
+                  </div>
+                  <div class="flex justify-between py-1.5 border-b border-slateBorder/40">
+                    <span class="text-slate-300">5. Subsídio de Natal Proporcional (${settlement.monthsWorkedExitYear}/12 meses - Art. 238.º n.º 3):</span>
+                    <span class="font-mono font-semibold text-white">${formatKz(settlement.proportionalChristmasBonus)}</span>
+                  </div>
+                  <div class="flex justify-between py-1.5 border-b border-slateBorder/40">
+                    <span class="text-slate-300 font-semibold text-amber-300">6. Indemnização / Compensação Legal (${settlement.indemnityFormulaLabel}):</span>
+                    <span class="font-mono font-bold text-amber-400">${formatKz(settlement.indemnityAmount)}</span>
+                  </div>
+                  ${settlement.noticePenaltyDeduction > 0 ? `
+                    <div class="flex justify-between py-1.5 border-b border-slateBorder/40 text-rose-400">
+                      <span>(-) Compensação por Falta de Aviso Prévio (${termFormState.unfulfilledNoticeDays} dias - Art. 305.º n.º 2):</span>
+                      <span class="font-mono font-semibold">-${formatKz(settlement.noticePenaltyDeduction)}</span>
+                    </div>
+                  ` : ''}
+                  <div class="flex justify-between py-1.5 border-b border-slateBorder/40 text-cyan-300">
+                    <span>(-) Segurança Social INSS (3% s/ Verbas Salariais):</span>
+                    <span class="font-mono">-${formatKz(settlement.inssDeduction)}</span>
+                  </div>
+                  <div class="flex justify-between py-1.5 border-b border-slateBorder/40 text-purple-300">
+                    <span>(-) Retenção IRT Estimada (Tabela 2026):</span>
+                    <span class="font-mono">-${formatKz(settlement.irtDeduction)}</span>
+                  </div>
+                </div>
+
+                <div class="mt-5 p-4 rounded-xl bg-emerald-950/30 border border-emerald-600/40 flex items-center justify-between">
+                  <div>
+                    <span class="text-xs font-bold uppercase text-emerald-300 block">Total Líquido das Contas Finais</span>
+                    <span class="text-[11px] text-slate-400">Prazo legal de liquidação: até 3 dias após cessação (Art. 245.º n.º 4)</span>
+                  </div>
+                  <span class="text-2xl font-bold font-mono text-emerald-400">${formatKz(settlement.netTotal)}</span>
+                </div>
+              </div>
+
+              <div class="flex flex-wrap justify-end gap-3 pt-6 mt-6 border-t border-slateBorder">
+                <button onclick="printWorkCertificate('${emp.id}')" class="px-4 py-2.5 rounded-xl bg-slateCard hover:bg-slate-700 border border-slateBorder text-slate-200 font-semibold text-xs flex items-center gap-2">
+                  <i class="fa-solid fa-certificate text-gold-500"></i> Certificado de Trabalho (Art. 275.º)
+                </button>
+                <button onclick="printTerminationReceipt()" class="px-4 py-2.5 rounded-xl gold-gradient text-obsidian font-bold text-xs flex items-center gap-2 shadow-lg">
+                  <i class="fa-solid fa-print"></i> Imprimir Termo de Quitação
+                </button>
+              </div>
+            ` : '<p class="text-slate-400">Não há trabalhadores activos para simular rescisão.</p>'}
+          </div>
+        </div>
+      `;
+    }
+
+    function calculateFinalSettlement(emp, exitDateStr, reason, unfulfilledNoticeDays = 0) {
+      const seniority = calculateSeniority(emp.admissionDate, exitDateStr);
+      const exitDate = new Date(exitDateStr + 'T00:00:00');
+      const dayOfMonth = exitDate.getDate();
+      const workedDaysInExitMonth = Math.min(30, dayOfMonth);
+
+      // 1. Saldo salário no mês da saída
+      const dailyRate = emp.baseSalary / 30;
+      const proRataSalary = Math.round(dailyRate * workedDaysInExitMonth * 100) / 100;
+
+      // 2. Férias vencidas não gozadas
+      const entitled = getEntitledVacationDays(emp);
+      const unusedVestedDays = Math.max(0, entitled - (emp.vacationDaysTaken || 0));
+      const dailyBusinessRate = emp.baseSalary / 22;
+      const vestedVacationPay = Math.round(unusedVestedDays * dailyBusinessRate * 100) / 100;
+
+      // 3. Férias proporcionais no ano da saída (2 dias úteis por mês completo - Art. 212.º n.º 2)
+      const monthsWorkedExitYear = exitDate.getMonth() + (dayOfMonth >= 15 ? 1 : 0);
+      const proportionalVacationDays = monthsWorkedExitYear * 2;
+      const proportionalVacationPay = Math.round(proportionalVacationDays * dailyBusinessRate * 100) / 100;
+
+      // 4. Gratificação de Férias proporcional & Subsídio de Natal proporcional (Art. 238.º n.º 3)
+      const proportionalVacationBonus = Math.round(((emp.baseSalary * state.params.vacationBonusPct) / 12) * monthsWorkedExitYear * 100) / 100;
+      const proportionalChristmasBonus = Math.round(((emp.baseSalary * state.params.christmasBonusPct) / 12) * monthsWorkedExitYear * 100) / 100;
+
+      // 5. Indemnização Legal por Motivo (Art. 307.º a 310.º LGT)
+      const Y = seniority.roundedYearsLGT;
+      let indemnityAmount = 0;
+      let indemnityFormulaLabel = 'Não aplicável';
+      let legalBasisNote = '';
+
+      switch (reason) {
+        case 'PERIODO_EXPERIMENTAL':
+          indemnityAmount = 0;
+          indemnityFormulaLabel = '0 Kz (Art. 18.º n.º 4)';
+          legalBasisNote = 'Cessação livre durante o período experimental sem aviso prévio nem indemnização.';
+          break;
+        case 'DEMISSAO_TRABALHADOR':
+          indemnityAmount = 0;
+          indemnityFormulaLabel = '0 Kz (Iniciativa do Trabalhador)';
+          legalBasisNote = 'Denúncia pelo trabalhador com aviso prévio de 30 dias (Art. 305.º LGT).';
+          break;
+        case 'JUSTA_CAUSA_DISCIPLINAR':
+          indemnityAmount = 0;
+          indemnityFormulaLabel = '0 Kz (Art. 281.º / 282.º)';
+          legalBasisNote = 'Despedimento disciplinar após processo formal com entrevista prévia (Art. 88.º).';
+          break;
+        case 'OBJETIVA_ECONOMICA':
+          // Art. 308.º: 100% salário-base até 5 anos + 50% por ano acima de 5 anos
+          const first5 = Math.min(Y, 5) * emp.baseSalary;
+          const above5 = Math.max(0, Y - 5) * (emp.baseSalary * 0.50);
+          indemnityAmount = first5 + above5;
+          indemnityFormulaLabel = `100% até 5 anos + 50% > 5 anos (${Y} anos)`;
+          legalBasisNote = 'Despedimento por causas económicas/tecnológicas — Aviso prévio 30d e comunicação à IGT (Art. 285.º).';
+          break;
+        case 'ILICITO_INDIRETO':
+          // Art. 310.º: 100% salário-base × anos, mínimo garantido de 3 salários-base
+          indemnityAmount = Math.max(emp.baseSalary * 3, emp.baseSalary * Y);
+          indemnityFormulaLabel = `100% × ${Y} anos (mín. 3 salários-base - Art. 310.º)`;
+          legalBasisNote = 'Indemnização por despedimento ilícito sem reintegração ou rescisão indirecta pelo trabalhador.';
+          break;
+        case 'INSOLVENCIA_EXTINCAO':
+          // Art. 307.º: 50% salário-base × anos
+          indemnityAmount = (emp.baseSalary * 0.50) * Y;
+          indemnityFormulaLabel = `50% × ${Y} anos (Art. 307.º)`;
+          legalBasisNote = 'Caducidade do contrato por insolvência ou extinção da entidade empregadora.';
+          break;
+        case 'MUTUO_ACORDO':
+          indemnityAmount = (emp.baseSalary * 0.50) * Y;
+          indemnityFormulaLabel = `Acordo Negociado (Ref. 50% × ${Y} anos)`;
+          legalBasisNote = 'Revogação bilateral reduzida a escrito e assinada em duplicado (Art. 280.º).';
+          break;
+      }
+
+      // Desconto aviso prévio em falta (Art. 305.º n.º 2)
+      const noticePenaltyDeduction = reason === 'DEMISSAO_TRABALHADOR'
+        ? Math.round((emp.baseSalary / 30) * Math.min(30, Math.max(0, unfulfilledNoticeDays)) * 100) / 100
+        : 0;
+
+      // Tributação sobre verbas remuneratórias (indemnizações legais são isentas de INSS/IRT até o limite legal)
+      const taxableRemunerationPart = proRataSalary + vestedVacationPay + proportionalVacationPay + proportionalVacationBonus + proportionalChristmasBonus;
+      const inssDeduction = Math.round(taxableRemunerationPart * state.params.inssWorkerRate * 100) / 100;
+      const irtDeduction = calculateIRT2026(Math.max(0, taxableRemunerationPart - inssDeduction)).tax;
+
+      const grossTotal = taxableRemunerationPart + indemnityAmount;
+      const netTotal = Math.max(0, Math.round((grossTotal - noticePenaltyDeduction - inssDeduction - irtDeduction) * 100) / 100);
+
+      return {
+        emp,
+        exitDateStr,
+        seniority,
+        workedDaysInExitMonth,
+        proRataSalary,
+        unusedVestedDays,
+        vestedVacationPay,
+        monthsWorkedExitYear,
+        proportionalVacationDays,
+        proportionalVacationPay,
+        proportionalVacationBonus,
+        proportionalChristmasBonus,
+        indemnityAmount,
+        indemnityFormulaLabel,
+        legalBasisNote,
+        noticePenaltyDeduction,
+        inssDeduction,
+        irtDeduction,
+        grossTotal,
+        netTotal
+      };
+    }
+
+    function printTerminationReceipt() {
+      const emp = state.employees.find(e => e.id === termFormState.empId);
+      if (!emp) return;
+      const s = calculateFinalSettlement(emp, termFormState.exitDate, termFormState.reason, termFormState.unfulfilledNoticeDays);
+      const c = state.company;
+
+      showModal(`Termo de Quitação e Contas Finais — ${emp.name}`, `
+        <div id="print-area" class="bg-white text-slate-900 p-8 rounded-xl font-sans text-xs space-y-4">
+          <div class="border-b-2 border-slate-800 pb-4 flex justify-between items-start">
+            <div>
+              <h2 class="text-base font-bold uppercase">${c.name}</h2>
+              <p class="text-slate-600">NIF: ${c.nif} • ${c.address}</p>
+            </div>
+            <div class="text-right">
+              <span class="px-3 py-1 bg-slate-900 text-white font-bold uppercase rounded">Contas Finais / Quitação</span>
+              <p class="mt-1 text-slate-600">Art. 245.º n.º 4 e Art. 316.º LGT</p>
+            </div>
+          </div>
+
+          <div class="p-3 bg-slate-100 rounded border border-slate-300 grid grid-cols-2 gap-2">
+            <div><strong>Trabalhador(a):</strong> ${emp.name}</div>
+            <div><strong>BI / NIF:</strong> ${emp.bi} / ${emp.nif}</div>
+            <div><strong>Categoria:</strong> ${emp.role}</div>
+            <div><strong>N.º INSS:</strong> ${emp.inss}</div>
+            <div><strong>Data Admissão:</strong> ${formatDatePT(emp.admissionDate)}</div>
+            <div><strong>Data Cessação:</strong> ${formatDatePT(s.exitDateStr)} (${s.seniority.years}a ${s.seniority.remMonths}m)</div>
+          </div>
+
+          <p class="text-slate-700"><strong>Fundamento Legal:</strong> ${s.legalBasisNote}</p>
+
+          <table class="w-full border-collapse border border-slate-300 font-mono">
+            <thead>
+              <tr class="bg-slate-200 font-sans">
+                <th class="border border-slate-300 p-2 text-left">Discriminação das Verbas</th>
+                <th class="border border-slate-300 p-2 text-right">Valor (AOA)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td class="border border-slate-300 p-2 font-sans">Saldo de Salário (${s.workedDaysInExitMonth} dias)</td><td class="border border-slate-300 p-2 text-right">${formatKz(s.proRataSalary)}</td></tr>
+              <tr><td class="border border-slate-300 p-2 font-sans">Férias Vencidas Não Gozadas (${s.unusedVestedDays} d.u.)</td><td class="border border-slate-300 p-2 text-right">${formatKz(s.vestedVacationPay)}</td></tr>
+              <tr><td class="border border-slate-300 p-2 font-sans">Férias Proporcionais (${s.proportionalVacationDays} d.u.)</td><td class="border border-slate-300 p-2 text-right">${formatKz(s.proportionalVacationPay)}</td></tr>
+              <tr><td class="border border-slate-300 p-2 font-sans">Gratificação de Férias Proporcional</td><td class="border border-slate-300 p-2 text-right">${formatKz(s.proportionalVacationBonus)}</td></tr>
+              <tr><td class="border border-slate-300 p-2 font-sans">Subsídio de Natal Proporcional (${s.monthsWorkedExitYear}/12)</td><td class="border border-slate-300 p-2 text-right">${formatKz(s.proportionalChristmasBonus)}</td></tr>
+              <tr><td class="border border-slate-300 p-2 font-sans">Compensação / Indemnização Legal</td><td class="border border-slate-300 p-2 text-right">${formatKz(s.indemnityAmount)}</td></tr>
+              ${s.noticePenaltyDeduction > 0 ? `<tr class="text-rose-700"><td class="border border-slate-300 p-2 font-sans">(-) Desconto Aviso Prévio em Falta</td><td class="border border-slate-300 p-2 text-right">-${formatKz(s.noticePenaltyDeduction)}</td></tr>` : ''}
+              <tr><td class="border border-slate-300 p-2 font-sans">(-) INSS Trabalhador (3%)</td><td class="border border-slate-300 p-2 text-right">-${formatKz(s.inssDeduction)}</td></tr>
+              <tr><td class="border border-slate-300 p-2 font-sans">(-) Retenção IRT (2026)</td><td class="border border-slate-300 p-2 text-right">-${formatKz(s.irtDeduction)}</td></tr>
+              <tr class="bg-slate-900 text-white font-bold text-sm">
+                <td class="border border-slate-900 p-2.5 font-sans uppercase">Total Líquido a Pagar (IBAN: ${emp.iban})</td>
+                <td class="border border-slate-900 p-2.5 text-right">${formatKz(s.netTotal)}</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <p class="text-[11px] text-slate-600 pt-2">Declaro que recebi da entidade empregadora acima identificada a importância líquida de <strong>${formatKz(s.netTotal)}</strong>, dando plena e geral quitação de todos os créditos emergentes do Contrato de Trabalho cessado, nos termos do artigo 316.º da Lei n.º 12/23.</p>
+
+          <div class="grid grid-cols-2 gap-12 pt-10 text-center">
+            <div><div class="border-t border-slate-800 pt-2 font-bold">A ENTIDADE EMPREGADORA</div></div>
+            <div><div class="border-t border-slate-800 pt-2 font-bold">O(A) TRABALHADOR(A)</div></div>
+          </div>
+        </div>
+      `, true);
+    }
+
+    function printWorkCertificate(empId) {
+      const emp = state.employees.find(e => e.id === empId);
+      if (!emp) return;
+      const c = state.company;
+
+      showModal(`Certificado de Trabalho (Art. 275.º LGT) — ${emp.name}`, `
+        <div id="print-area" class="bg-white text-slate-900 p-10 rounded-xl font-serif text-sm leading-relaxed space-y-6">
+          <div class="text-center border-b-2 border-slate-800 pb-4">
+            <h2 class="text-xl font-bold uppercase tracking-widest">CERTIFICADO DE TRABALHO</h2>
+            <p class="text-xs font-sans text-slate-600 mt-1">Emitido em cumprimento obrigatório do Artigo 275.º da Lei Geral do Trabalho (Lei n.º 12/23)</p>
+          </div>
+
+          <p class="pt-4">Para os devidos efeitos legais, <strong>${c.name}</strong>, pessoa colectiva contribuinte fiscal n.º <strong>${c.nif}</strong>, com sede social em ${c.address}, certifica que o(a) cidadão(ã) <strong>${emp.name}</strong>, portador(a) do Bilhete de Identidade n.º <strong>${emp.bi}</strong>, beneficiário(a) da Segurança Social n.º <strong>${emp.inss}</strong>, esteve ao serviço desta entidade empregadora no período compreendido entre <strong>${formatDatePT(emp.admissionDate)}</strong> e <strong>${formatDatePT(termFormState.exitDate)}</strong>.</p>
+
+          <p>Durante a vigência do referido Contrato de Trabalho, o(a) trabalhador(a) exerceu com regularidade as funções correspondentes à categoria profissional de <strong>${emp.role}</strong> (Qualificador Ocupacional MAPTSS: ${emp.maptssCode}), afecto(a) ao departamento de ${emp.department}.</p>
+
+          <p>Por ser verdade e nos termos do n.º 2 do artigo 275.º da Lei n.º 12/23 não conter quaisquer referências desabonatórias, passa-se o presente Certificado de Trabalho, que vai devidamente assinado e autenticado com o carimbo a óleo em uso nesta empresa.</p>
+
+          <p class="pt-6">Luanda, ${formatDatePT(termFormState.exitDate)}.</p>
+
+          <div class="pt-12 text-center font-sans text-xs w-72 mx-auto">
+            <div class="border-t border-slate-800 pt-2 font-bold uppercase">A Direcção de Recursos Humanos</div>
+            <div class="text-slate-600">${c.name}</div>
+          </div>
+        </div>
+      `, true);
+    }
+
+    // =========================================================================
+    // 11. MÓDULO 7: PARÂMETROS LEGAIS & FISCAIS (OGE 2026 / LGT)
+    // =========================================================================
+    function renderSettings(container) {
+      const p = state.params;
+
+      container.innerHTML = `
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h2 class="text-2xl font-bold text-white tracking-tight">Parâmetros Fiscais & Legais (OGE / LGT)</h2>
+            <p class="text-sm text-slate-400">Tabelas parametrizáveis para actualização anual conforme o Orçamento Geral do Estado de Angola.</p>
+          </div>
+          <button onclick="saveFiscalParams()" class="px-5 py-2.5 rounded-xl gold-gradient text-obsidian font-bold text-xs shadow-lg hover:opacity-95 flex items-center gap-2 self-start">
+            <i class="fa-solid fa-floppy-disk"></i> Guardar Parâmetros
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <!-- Parâmetros Gerais -->
+          <div class="card-surface rounded-2xl p-6 space-y-4 text-sm">
+            <h3 class="font-bold text-white border-b border-slateBorder pb-2.5">Taxas INSS & Tetos de Isenção</h3>
+            
+            <div>
+              <label class="block text-xs text-slate-400 mb-1">Quota Trabalhador INSS (%)</label>
+              <input type="number" id="param-inss-worker" step="0.1" value="${(p.inssWorkerRate * 100).toFixed(1)}" class="input-dark w-full px-3 py-2 rounded-xl font-mono" />
+            </div>
+            <div>
+              <label class="block text-xs text-slate-400 mb-1">Quota Entidade Empregadora INSS (%)</label>
+              <input type="number" id="param-inss-employer" step="0.1" value="${(p.inssEmployerRate * 100).toFixed(1)}" class="input-dark w-full px-3 py-2 rounded-xl font-mono" />
+            </div>
+            <div>
+              <label class="block text-xs text-slate-400 mb-1">Teto Isenção Subsídio Alimentação (Kz)</label>
+              <input type="number" id="param-food-cap" step="1000" value="${p.foodExemptCap}" class="input-dark w-full px-3 py-2 rounded-xl font-mono" />
+            </div>
+            <div>
+              <label class="block text-xs text-slate-400 mb-1">Teto Isenção Subsídio Transporte (Kz)</label>
+              <input type="number" id="param-trans-cap" step="1000" value="${p.transportExemptCap}" class="input-dark w-full px-3 py-2 rounded-xl font-mono" />
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs text-slate-400 mb-1">Gratif. Férias (%)</label>
+                <input type="number" id="param-vac-pct" min="50" max="100" value="${(p.vacationBonusPct * 100).toFixed(0)}" class="input-dark w-full px-3 py-2 rounded-xl font-mono" />
+              </div>
+              <div>
+                <label class="block text-xs text-slate-400 mb-1">Sub. Natal (%)</label>
+                <input type="number" id="param-xmas-pct" min="50" max="100" value="${(p.christmasBonusPct * 100).toFixed(0)}" class="input-dark w-full px-3 py-2 rounded-xl font-mono" />
+              </div>
+            </div>
+            <div>
+              <label class="block text-xs text-slate-400 mb-1">Salário Mínimo Nacional Referência (Kz)</label>
+              <input type="number" id="param-min-wage" step="1000" value="${p.minWageRef}" class="input-dark w-full px-3 py-2 rounded-xl font-mono" />
+            </div>
+          </div>
+
+          <!-- Tabela Progressiva IRT 2026 -->
+          <div class="lg:col-span-2 card-surface rounded-2xl overflow-hidden">
+            <div class="p-4 border-b border-slateBorder bg-obsidian/50 flex justify-between items-center">
+              <h3 class="font-bold text-sm text-white">Tabela Progressiva do IRT — Grupo A (OGE 2026 / Lei n.º 14/25)</h3>
+              <span class="text-xs text-amber-400 font-mono">Valores em Kwanzas (AOA)</span>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse text-xs font-mono">
+                <thead>
+                  <tr class="border-b border-slateBorder bg-obsidian/80 font-sans text-[11px] uppercase text-slate-400">
+                    <th class="py-3 px-4">Escalão</th>
+                    <th class="py-3 px-3 text-right">De (Kz)</th>
+                    <th class="py-3 px-3 text-right">Até (Kz)</th>
+                    <th class="py-3 px-3 text-right">Parcela Fixa (Kz)</th>
+                    <th class="py-3 px-3 text-right">Taxa (%)</th>
+                    <th class="py-3 px-4 text-right">Sobre Excesso de</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slateBorder/50">
+                  ${p.irtTable2026.map(row => `
+                    <tr class="hover:bg-slateCard/40">
+                      <td class="py-2.5 px-4 font-sans font-bold text-slate-200">${row.escalao}.º Escalão</td>
+                      <td class="py-2.5 px-3 text-right text-slate-300">${row.min.toLocaleString('pt-PT')}</td>
+                      <td class="py-2.5 px-3 text-right text-slate-300">${row.max === Infinity ? 'Sem limite' : row.max.toLocaleString('pt-PT')}</td>
+                      <td class="py-2.5 px-3 text-right text-purple-300 font-semibold">${row.fixa.toLocaleString('pt-PT')}</td>
+                      <td class="py-2.5 px-3 text-right text-amber-400 font-bold">${(row.taxa * 100).toFixed(1)}%</td>
+                      <td class="py-2.5 px-4 text-right text-slate-400">${row.excesso.toLocaleString('pt-PT')}</td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function saveFiscalParams() {
+      state.params.inssWorkerRate = (Number(document.getElementById('param-inss-worker').value) || 3) / 100;
+      state.params.inssEmployerRate = (Number(document.getElementById('param-inss-employer').value) || 8) / 100;
+      state.params.foodExemptCap = Number(document.getElementById('param-food-cap').value) || 30000;
+      state.params.transportExemptCap = Number(document.getElementById('param-trans-cap').value) || 30000;
+      state.params.vacationBonusPct = Math.max(0.5, (Number(document.getElementById('param-vac-pct').value) || 50) / 100);
+      state.params.christmasBonusPct = Math.max(0.5, (Number(document.getElementById('param-xmas-pct').value) || 50) / 100);
+      state.params.minWageRef = Number(document.getElementById('param-min-wage').value) || 70000;
+
+      saveState();
+      showToast('Parâmetros fiscais e trabalhistas actualizados!', 'success');
+    }
+
+    // =========================================================================
+    // 12. CONFIGURAÇÃO DA EMPRESA & MODAIS
+    // =========================================================================
+    function openCompanyModal() {
+      const c = state.company;
+      showModal('Dados da Entidade Empregadora (Angola)', `
+        <form onsubmit="saveCompanyForm(event)" class="space-y-4 text-sm">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="sm:col-span-2">
+              <label class="block text-xs text-slate-400 mb-1">Denominação Social *</label>
+              <input type="text" name="name" required value="${c.name}" class="input-dark w-full px-3 py-2 rounded-xl" />
+            </div>
+            <div>
+              <label class="block text-xs text-slate-400 mb-1">NIF da Empresa (AGT) *</label>
+              <input type="text" name="nif" required value="${c.nif}" class="input-dark w-full px-3 py-2 rounded-xl font-mono" />
+            </div>
+            <div>
+              <label class="block text-xs text-slate-400 mb-1">N.º Contribuinte INSS *</label>
+              <input type="text" name="inssEntity" required value="${c.inssEntity}" class="input-dark w-full px-3 py-2 rounded-xl font-mono" />
+            </div>
+            <div class="sm:col-span-2">
+              <label class="block text-xs text-slate-400 mb-1">Endereço do Centro de Trabalho (Luanda) *</label>
+              <input type="text" name="address" required value="${c.address}" class="input-dark w-full px-3 py-2 rounded-xl" />
+            </div>
+            <div>
+              <label class="block text-xs text-slate-400 mb-1">Actividade Económica (CAE)</label>
+              <input type="text" name="sector" value="${c.sector}" class="input-dark w-full px-3 py-2 rounded-xl" />
+            </div>
+            <div>
+              <label class="block text-xs text-slate-400 mb-1">Representante Legal</label>
+              <input type="text" name="representative" value="${c.representative}" class="input-dark w-full px-3 py-2 rounded-xl" />
+            </div>
+          </div>
+          <div class="flex justify-end gap-3 pt-4 border-t border-slateBorder">
+            <button type="button" onclick="closeModal()" class="px-4 py-2 rounded-xl bg-slateCard text-slate-300">Cancelar</button>
+            <button type="submit" class="px-5 py-2 rounded-xl gold-gradient text-obsidian font-bold">Guardar Empresa</button>
+          </div>
+        </form>
+      `);
+    }
+
+    function saveCompanyForm(event) {
+      event.preventDefault();
+      const fd = new FormData(event.target);
+      state.company = {
+        name: fd.get('name').trim(),
+        nif: fd.get('nif').trim(),
+        inssEntity: fd.get('inssEntity').trim(),
+        address: fd.get('address').trim(),
+        sector: fd.get('sector').trim(),
+        representative: fd.get('representative').trim()
+      };
+      saveState();
+      closeModal();
+      renderCurrentRoute();
+      showToast('Dados da entidade empregadora actualizados!', 'success');
+    }
+
+    function showModal(title, htmlContent, allowPrint = false) {
+      document.getElementById('modal-title').textContent = title;
+      document.getElementById('modal-body').innerHTML = htmlContent;
+      const printBtn = document.getElementById('modal-print-btn');
+      if (allowPrint) {
+        printBtn.classList.remove('hidden');
+      } else {
+        printBtn.classList.add('hidden');
+      }
+      const backdrop = document.getElementById('modal-backdrop');
+      backdrop.classList.remove('hidden');
+      backdrop.classList.add('flex');
+    }
+
+    function closeModal() {
+      const backdrop = document.getElementById('modal-backdrop');
+      backdrop.classList.add('hidden');
+      backdrop.classList.remove('flex');
+    }
+
+    // Fechar modal ao clicar fora
+    document.getElementById('modal-backdrop').addEventListener('click', (e) => {
+      if (e.target.id === 'modal-backdrop') closeModal();
+    });
+
+    // Inicialização
+    window.addEventListener('DOMContentLoaded', () => {
+      updateHeaderUI();
+      navigate('dashboard');
+    });
+  </script>
+</body>
+</html>
